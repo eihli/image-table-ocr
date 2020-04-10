@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-04-10 Fri 13:49 -->
+<!-- 2020-04-10 Fri 14:10 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PDF Parsing</title>
@@ -225,53 +225,53 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org533e16a">1. Preparing our data</a>
+<li><a href="#org59412d5">1. Preparing our data</a>
 <ul>
-<li><a href="#orga09ea5b">1.1. Converting PDFs to images</a></li>
-<li><a href="#orgf3a14b3">1.2. Detecting image orientation and applying rotation.</a></li>
+<li><a href="#org712ee8b">1.1. Converting PDFs to images</a></li>
+<li><a href="#org1b42ded">1.2. Detecting image orientation and applying rotation.</a></li>
 </ul>
 </li>
-<li><a href="#org8657733">2. Detecting tables</a></li>
-<li><a href="#orgda5b77b">3. OCR tables</a>
+<li><a href="#org7b5bda0">2. Detecting tables</a></li>
+<li><a href="#org0201b8f">3. OCR tables</a>
 <ul>
 <li>
 <ul>
-<li><a href="#org111c988">3.0.1. Blur</a></li>
-<li><a href="#org08523db">3.0.2. Threshold</a></li>
-<li><a href="#orgcfbb819">3.0.3. Finding the vertical and horizontal lines of the table</a></li>
-<li><a href="#orge26e613">3.0.4. Finding the contours</a></li>
-<li><a href="#org39c0a09">3.0.5. Sorting the bounding rectangles</a></li>
-<li><a href="#orgb00b770">3.0.6. Cropping each cell to the text</a></li>
-<li><a href="#orgd24a937">3.0.7. OCR each cell</a></li>
+<li><a href="#orged411a4">3.0.1. Blur</a></li>
+<li><a href="#org261362c">3.0.2. Threshold</a></li>
+<li><a href="#org8538093">3.0.3. Finding the vertical and horizontal lines of the table</a></li>
+<li><a href="#org4fb8398">3.0.4. Finding the contours</a></li>
+<li><a href="#org85d4011">3.0.5. Sorting the bounding rectangles</a></li>
+<li><a href="#orgf80e3ed">3.0.6. Cropping each cell to the text</a></li>
+<li><a href="#org87267b7">3.0.7. OCR each cell</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org8689ce0">4. Files</a>
+<li><a href="#org29c3621">4. Files</a>
 <ul>
-<li><a href="#org91ea732">4.1. setup.py</a></li>
-<li><a href="#orgf115626">4.2. table_image_ocr</a>
+<li><a href="#org4ab36c6">4.1. setup.py</a></li>
+<li><a href="#org47315fb">4.2. table_image_ocr</a>
 <ul>
-<li><a href="#org8765709">4.2.1. table_image_ocr/__init__.py</a></li>
-<li><a href="#org8d0619f">4.2.2. table_image_ocr/util.py</a></li>
-<li><a href="#orga454dca">4.2.3. table_image_ocr/prepare_pdfs.py</a></li>
-<li><a href="#org076a34b">4.2.4. table_image_ocr/extract_tables.py</a></li>
-<li><a href="#org1b2f268">4.2.5. table_image_ocr/extract_cells_from_table.py</a></li>
+<li><a href="#org066bf49">4.2.1. table_image_ocr/__init__.py</a></li>
+<li><a href="#org95b6056">4.2.2. table_image_ocr/util.py</a></li>
+<li><a href="#org6511b91">4.2.3. table_image_ocr/prepare_pdfs.py</a></li>
+<li><a href="#orgaa4f936">4.2.4. table_image_ocr/extract_tables.py</a></li>
+<li><a href="#org67a9781">4.2.5. table_image_ocr/extract_cells_from_table.py</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgde56bd1">5. Utils</a></li>
+<li><a href="#org37d29da">5. Utils</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org533e16a" class="outline-2">
-<h2 id="org533e16a"><span class="section-number-2">1</span> Preparing our data</h2>
+<div id="outline-container-org59412d5" class="outline-2">
+<h2 id="org59412d5"><span class="section-number-2">1</span> Preparing our data</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-orga09ea5b" class="outline-3">
-<h3 id="orga09ea5b"><span class="section-number-3">1.1</span> Converting PDFs to images</h3>
+<div id="outline-container-org712ee8b" class="outline-3">
+<h3 id="org712ee8b"><span class="section-number-3">1.1</span> Converting PDFs to images</h3>
 <div class="outline-text-3" id="text-1-1">
 <p>
 Not all pdfs need to be sent through OCR to extract the text content. If you can
@@ -284,7 +284,7 @@ This code calls out to <a href="https://manpages.debian.org/testing/poppler-util
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python" id="org1bef3d0"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">pdf_to_images</span>(pdf_filepath):
+<pre class="src src-python" id="org30ad29f"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">pdf_to_images</span>(pdf_filepath):
 <span style="background-color: #282c34;"> </span>   <span style="color: #83898d;">"""</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Turn a pdf into images</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   """</span>
@@ -323,8 +323,8 @@ This code calls out to <a href="https://manpages.debian.org/testing/poppler-util
 </div>
 </div>
 
-<div id="outline-container-orgf3a14b3" class="outline-3">
-<h3 id="orgf3a14b3"><span class="section-number-3">1.2</span> Detecting image orientation and applying rotation.</h3>
+<div id="outline-container-org1b42ded" class="outline-3">
+<h3 id="org1b42ded"><span class="section-number-3">1.2</span> Detecting image orientation and applying rotation.</h3>
 <div class="outline-text-3" id="text-1-2">
 <p>
 Tesseract can detect orientation and we can then use <a href="https://www.imagemagick.org/script/mogrify.php">ImageMagick&rsquo;s mogrify</a> to
@@ -347,7 +347,7 @@ Script confidence: 2.44
 </pre>
 
 <div class="org-src-container">
-<pre class="src src-python" id="org678f3f8"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">preprocess_img</span>(filepath):
+<pre class="src src-python" id="org0a5f24f"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">preprocess_img</span>(filepath):
 <span style="background-color: #282c34;"> </span>   <span style="color: #83898d;">"""</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Processing that involves running shell executables,</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   like mogrify to rotate.</span>
@@ -376,8 +376,8 @@ Script confidence: 2.44
 </div>
 </div>
 
-<div id="outline-container-org8657733" class="outline-2">
-<h2 id="org8657733"><span class="section-number-2">2</span> Detecting tables</h2>
+<div id="outline-container-org7b5bda0" class="outline-2">
+<h2 id="org7b5bda0"><span class="section-number-2">2</span> Detecting tables</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 This answer from opencv.org was heavily referenced while writing the code around
@@ -435,11 +435,16 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table.png"
 <span style="color: #98be65;">"resources/examples/example-table.png"</span>
 </pre>
 </div>
+
+<div class="figure">
+<p><img src="resources/examples/example-table.png" alt="example-table.png" width="500px" height="100%" />
+</p>
+</div>
 </div>
 </div>
 
-<div id="outline-container-orgda5b77b" class="outline-2">
-<h2 id="orgda5b77b"><span class="section-number-2">3</span> OCR tables</h2>
+<div id="outline-container-org0201b8f" class="outline-2">
+<h2 id="org0201b8f"><span class="section-number-2">3</span> OCR tables</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 Find the bounding box of each cell in the table. Run tesseract on each cell.
@@ -451,8 +456,8 @@ We&rsquo;ll start with an image shown at the end of the previous section.
 </p>
 </div>
 
-<div id="outline-container-org111c988" class="outline-4">
-<h4 id="org111c988"><span class="section-number-4">3.0.1</span> Blur</h4>
+<div id="outline-container-orged411a4" class="outline-4">
+<h4 id="orged411a4"><span class="section-number-4">3.0.1</span> Blur</h4>
 <div class="outline-text-4" id="text-3-0-1">
 <p>
 Blurring helps to make noise less noisy so that the overall structure of an
@@ -493,8 +498,8 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-blur
 </div>
 </div>
 
-<div id="outline-container-org08523db" class="outline-4">
-<h4 id="org08523db"><span class="section-number-4">3.0.2</span> Threshold</h4>
+<div id="outline-container-org261362c" class="outline-4">
+<h4 id="org261362c"><span class="section-number-4">3.0.2</span> Threshold</h4>
 <div class="outline-text-4" id="text-3-0-2">
 <p>
 We&rsquo;ve got a bunch of pixels that are gray. Thresholding will turn them all
@@ -533,8 +538,8 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-thre
 </div>
 </div>
 
-<div id="outline-container-orgcfbb819" class="outline-4">
-<h4 id="orgcfbb819"><span class="section-number-4">3.0.3</span> Finding the vertical and horizontal lines of the table</h4>
+<div id="outline-container-org8538093" class="outline-4">
+<h4 id="org8538093"><span class="section-number-4">3.0.3</span> Finding the vertical and horizontal lines of the table</h4>
 <div class="outline-text-4" id="text-3-0-3">
 <p>
 Note: There&rsquo;s a wierd issue with the results of the example below when it&rsquo;s
@@ -574,8 +579,8 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-line
 </div>
 </div>
 
-<div id="outline-container-orge26e613" class="outline-4">
-<h4 id="orge26e613"><span class="section-number-4">3.0.4</span> Finding the contours</h4>
+<div id="outline-container-org4fb8398" class="outline-4">
+<h4 id="org4fb8398"><span class="section-number-4">3.0.4</span> Finding the contours</h4>
 <div class="outline-text-4" id="text-3-0-4">
 <p>
 Blurring and thresholding allow us to find the lines. Opening the lines allows
@@ -656,8 +661,8 @@ above/below certain sizes.
 </div>
 </div>
 
-<div id="outline-container-org39c0a09" class="outline-4">
-<h4 id="org39c0a09"><span class="section-number-4">3.0.5</span> Sorting the bounding rectangles</h4>
+<div id="outline-container-org85d4011" class="outline-4">
+<h4 id="org85d4011"><span class="section-number-4">3.0.5</span> Sorting the bounding rectangles</h4>
 <div class="outline-text-4" id="text-3-0-5">
 <p>
 We want to process these from left-to-right, top-to-bottom.
@@ -857,11 +862,17 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell
 <span style="color: #98be65;">"resources/examples/example-table-cell-1-1.png"</span>
 </pre>
 </div>
+
+
+<div class="figure">
+<p><img src="resources/examples/example-table-cell-1-1.png" alt="example-table-cell-1-1.png" width="200px" height="100%" />
+</p>
+</div>
 </div>
 </div>
 
-<div id="outline-container-orgb00b770" class="outline-4">
-<h4 id="orgb00b770"><span class="section-number-4">3.0.6</span> Cropping each cell to the text</h4>
+<div id="outline-container-orgf80e3ed" class="outline-4">
+<h4 id="orgf80e3ed"><span class="section-number-4">3.0.6</span> Cropping each cell to the text</h4>
 <div class="outline-text-4" id="text-3-0-6">
 <p>
 OCR with Tesseract works best when there is about 10 pixels of white border
@@ -914,8 +925,8 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell
 </div>
 </div>
 
-<div id="outline-container-orgd24a937" class="outline-4">
-<h4 id="orgd24a937"><span class="section-number-4">3.0.7</span> OCR each cell</h4>
+<div id="outline-container-org87267b7" class="outline-4">
+<h4 id="org87267b7"><span class="section-number-4">3.0.7</span> OCR each cell</h4>
 <div class="outline-text-4" id="text-3-0-7">
 <p>
 If we cleaned up the images well enough, we might get some accurate OCR!
@@ -961,6 +972,7 @@ period into a comma, then you might need to do some custom Tesseract training.
 
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">import</span> pytesseract
+<span style="color: #51afef;">import</span> cv2
 <span style="color: #dcaeea;">image</span> = cv2.imread(<span style="color: #98be65;">"resources/examples/example-table-cell-1-1.png"</span>, cv2.IMREAD_GRAYSCALE)
 &lt;&lt;ocr-image&gt;&gt;
 ocr_image(image, <span style="color: #98be65;">"--psm 7"</span>)
@@ -974,8 +986,8 @@ ocr_image(image, <span style="color: #98be65;">"--psm 7"</span>)
 </div>
 </div>
 
-<div id="outline-container-org8689ce0" class="outline-2">
-<h2 id="org8689ce0"><span class="section-number-2">4</span> Files</h2>
+<div id="outline-container-org29c3621" class="outline-2">
+<h2 id="org29c3621"><span class="section-number-2">4</span> Files</h2>
 <div class="outline-text-2" id="text-4">
 <div class="org-src-container">
 <pre class="src src-python">
@@ -983,8 +995,8 @@ ocr_image(image, <span style="color: #98be65;">"--psm 7"</span>)
 </div>
 </div>
 
-<div id="outline-container-org91ea732" class="outline-3">
-<h3 id="org91ea732"><span class="section-number-3">4.1</span> setup.py</h3>
+<div id="outline-container-org4ab36c6" class="outline-3">
+<h3 id="org4ab36c6"><span class="section-number-3">4.1</span> setup.py</h3>
 <div class="outline-text-3" id="text-4-1">
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">import</span> setuptools
@@ -1014,12 +1026,12 @@ setuptools.setup(
 </div>
 </div>
 
-<div id="outline-container-orgf115626" class="outline-3">
-<h3 id="orgf115626"><span class="section-number-3">4.2</span> table_image_ocr</h3>
+<div id="outline-container-org47315fb" class="outline-3">
+<h3 id="org47315fb"><span class="section-number-3">4.2</span> table_image_ocr</h3>
 <div class="outline-text-3" id="text-4-2">
 </div>
-<div id="outline-container-org8765709" class="outline-4">
-<h4 id="org8765709"><span class="section-number-4">4.2.1</span> table_image_ocr/__init__.py</h4>
+<div id="outline-container-org066bf49" class="outline-4">
+<h4 id="org066bf49"><span class="section-number-4">4.2.1</span> table_image_ocr/__init__.py</h4>
 <div class="outline-text-4" id="text-4-2-1">
 <div class="org-src-container">
 <pre class="src src-python">
@@ -1028,8 +1040,8 @@ setuptools.setup(
 </div>
 </div>
 
-<div id="outline-container-org8d0619f" class="outline-4">
-<h4 id="org8d0619f"><span class="section-number-4">4.2.2</span> table_image_ocr/util.py</h4>
+<div id="outline-container-org95b6056" class="outline-4">
+<h4 id="org95b6056"><span class="section-number-4">4.2.2</span> table_image_ocr/util.py</h4>
 <div class="outline-text-4" id="text-4-2-2">
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">from</span> contextlib <span style="color: #51afef;">import</span> contextmanager
@@ -1073,8 +1085,8 @@ setuptools.setup(
 </div>
 </div>
 
-<div id="outline-container-orga454dca" class="outline-4">
-<h4 id="orga454dca"><span class="section-number-4">4.2.3</span> table_image_ocr/prepare_pdfs.py</h4>
+<div id="outline-container-org6511b91" class="outline-4">
+<h4 id="org6511b91"><span class="section-number-4">4.2.3</span> table_image_ocr/prepare_pdfs.py</h4>
 <div class="outline-text-4" id="text-4-2-3">
 <p>
 Takes a variable number of pdf files and creates images out of each page of the
@@ -1190,8 +1202,8 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 </div>
 </div>
 
-<div id="outline-container-org076a34b" class="outline-4">
-<h4 id="org076a34b"><span class="section-number-4">4.2.4</span> table_image_ocr/extract_tables.py</h4>
+<div id="outline-container-orgaa4f936" class="outline-4">
+<h4 id="orgaa4f936"><span class="section-number-4">4.2.4</span> table_image_ocr/extract_tables.py</h4>
 <div class="outline-text-4" id="text-4-2-4">
 <div class="org-src-container">
 <pre class="src src-shell">. ~/.virtualenvs/lotto_odds/bin/activate
@@ -1284,8 +1296,8 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 </div>
 </div>
 
-<div id="outline-container-org1b2f268" class="outline-4">
-<h4 id="org1b2f268"><span class="section-number-4">4.2.5</span> table_image_ocr/extract_cells_from_table.py</h4>
+<div id="outline-container-org67a9781" class="outline-4">
+<h4 id="org67a9781"><span class="section-number-4">4.2.5</span> table_image_ocr/extract_cells_from_table.py</h4>
 <div class="outline-text-4" id="text-4-2-5">
 <div class="org-src-container">
 <pre class="src src-shell">. ~/.virtualenvs/lotto_odds/bin/activate
@@ -1420,8 +1432,8 @@ python -m pdf.extract_cells_from_table <span style="color: #98be65;">"resources/
 </div>
 </div>
 
-<div id="outline-container-orgde56bd1" class="outline-2">
-<h2 id="orgde56bd1"><span class="section-number-2">5</span> Utils</h2>
+<div id="outline-container-org37d29da" class="outline-2">
+<h2 id="org37d29da"><span class="section-number-2">5</span> Utils</h2>
 <div class="outline-text-2" id="text-5">
 <p>
 The following code lets us specify a size for images when they are exported to
@@ -1448,9 +1460,12 @@ with <code>advice-add</code>.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="org782d2f5"><span style="color: #51afef;">(</span><span style="color: #a9a1e1;">concat</span> <span style="color: #98be65;">"#+ATTR_HTML: :width "</span> width <span style="color: #98be65;">" :height "</span> height <span style="color: #98be65;">"\n[[file:"</span> text <span style="color: #98be65;">"]]"</span><span style="color: #51afef;">)</span>
+<pre class="src src-emacs-lisp" id="orgee2042c"><span style="color: #51afef;">(</span><span style="color: #a9a1e1;">concat</span> <span style="color: #98be65;">"#+ATTR_HTML: :width "</span> width <span style="color: #98be65;">" :height "</span> height <span style="color: #98be65;">"\n[[file:"</span> text <span style="color: #98be65;">"]]"</span><span style="color: #51afef;">)</span>
 </pre>
 </div>
+<p width="100%" height="100%">
+<a href="" width="100%" height="100%"></a>
+</p>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #51afef;">(</span><span style="color: #51afef;">defun</span> <span style="color: #c678dd;">remove-attributes-from-src-block-result</span> <span style="color: #c678dd;">(</span><span style="color: #ECBE7B;">&amp;rest</span> args<span style="color: #c678dd;">)</span>
@@ -1473,7 +1488,7 @@ with <code>advice-add</code>.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Eric Ihli</p>
-<p class="date">Created: 2020-04-10 Fri 13:49</p>
+<p class="date">Created: 2020-04-10 Fri 14:10</p>
 </div>
 </body>
 </html>

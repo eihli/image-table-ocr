@@ -164,6 +164,10 @@ cv2.imwrite("resources/examples/example-table.png", image)
 "resources/examples/example-table.png"
 #+END_SRC
 
+#+RESULTS:
+#+ATTR_HTML: :width 500px :height 100%
+[[file:resources/examples/example-table.png]]
+
 * OCR tables
 
 Find the bounding box of each cell in the table. Run tesseract on each cell.
@@ -437,6 +441,10 @@ cv2.imwrite("resources/examples/example-table-cell-1-1.png", cell_images_rows[1]
 "resources/examples/example-table-cell-1-1.png"
 #+END_SRC
 
+#+RESULTS:
+#+ATTR_HTML: :width 200px :height 100%
+[[file:resources/examples/example-table-cell-1-1.png]]
+
 *** Cropping each cell to the text
 
 OCR with Tesseract works best when there is about 10 pixels of white border
@@ -505,6 +513,7 @@ def ocr_image(image, config):
 
 #+BEGIN_SRC python :noweb no-export :exports both
 import pytesseract
+import cv2
 image = cv2.imread("resources/examples/example-table-cell-1-1.png", cv2.IMREAD_GRAYSCALE)
 <<ocr-image>>
 ocr_image(image, "--psm 7")
@@ -521,8 +530,6 @@ ocr_image(image, "--psm 7")
 #+BEGIN_SRC python :tangle pdf/__init__.py :mkdirp yes :results none
 
 #+END_SRC
-
-#+RESULTS:
 
 ** setup.py
 #+BEGIN_SRC python :tangle setup.py :results none
@@ -753,9 +760,13 @@ we can define a function to do some cleanup and then add it as a before hook
 with ~advice-add~.
 
 #+NAME: html-image-size
-#+BEGIN_SRC emacs-lisp :var text="" :var width="100%" :var height="100%" :results none
+#+BEGIN_SRC emacs-lisp :var text="" :var width="100%" :var height="100%" :results raw :export code
 (concat "#+ATTR_HTML: :width " width " :height " height "\n[[file:" text "]]")
 #+END_SRC
+
+#+RESULTS: html-image-size
+#+ATTR_HTML: :width 100% :height 100%
+[[file:]]
 
 #+BEGIN_SRC emacs-lisp :results none
 (defun remove-attributes-from-src-block-result (&rest args)
