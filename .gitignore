@@ -8,3 +8,4 @@ tmp/
 build
 htmlcov
 dist
+*.egg-info
