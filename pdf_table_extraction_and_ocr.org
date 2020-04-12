@@ -500,9 +500,7 @@ thick noise or a wrongly detected table.
 If everything looks reasonable but the OCR is doing something like turning a
 period into a comma, then you might need to do some custom Tesseract training.
 
-#+BEGIN_SRC python :noweb-ref ocr-image :eval no :noweb yes
-<<crop-to-text>>
-
+#+BEGIN_SRC python :noweb-ref ocr-image :eval no
 def ocr_image(image, config):
     cropped = crop_to_text(image)
     return pytesseract.image_to_string(
@@ -515,6 +513,7 @@ def ocr_image(image, config):
 import pytesseract
 import cv2
 image = cv2.imread("resources/examples/example-table-cell-1-1.png", cv2.IMREAD_GRAYSCALE)
+<<crop-to-text>>
 <<ocr-image>>
 ocr_image(image, "--psm 7")
 #+END_SRC
@@ -728,6 +727,35 @@ def main(f):
 
 
 <<extract-cells-from-table>>
+
+if __name__ == "__main__":
+    main(sys.argv[1])
+#+END_SRC
+
+*** table_ocr/ocr_image.py
+
+This does a little bit of cleanup before sending it through tesseract.
+
+#+BEGIN_SRC shell :results output
+. ~/.virtualenvs/lotto_odds/bin/activate
+python -m table_ocr.ocr_cell resources/examples/cells/000-000.png
+#+END_SRC
+
+#+RESULTS:
+: PRIZE
+
+#+BEGIN_SRC python :tangle table_ocr/ocr_cell.py :mkdirp yes :results none
+import sys
+
+import cv2
+import pytesseract
+
+<<crop-to-text>>
+<<ocr-image>>
+
+def main(f):
+    image = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
+    print(ocr_image(image, "--psm 7"))
 
 if __name__ == "__main__":
     main(sys.argv[1])

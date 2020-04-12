@@ -13,7 +13,6 @@ def main(files):
         directory, filename = os.path.split(f)
 
         image = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
-        print("Reading {}".format(f))
         tables = find_tables(image)
         files = []
         for i, table in enumerate(tables):
