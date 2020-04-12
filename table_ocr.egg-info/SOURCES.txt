@@ -1,0 +1,11 @@
+setup.py
+table_ocr/__init__.py
+table_ocr/extract_cells_from_table.py
+table_ocr/extract_tables.py
+table_ocr/prepare_pdfs.py
+table_ocr/util.py
+table_ocr.egg-info/PKG-INFO
+table_ocr.egg-info/SOURCES.txt
+table_ocr.egg-info/dependency_links.txt
+table_ocr.egg-info/requires.txt
+table_ocr.egg-info/top_level.txt

@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: table-ocr
+Version: 0.0.1
+Summary: Turn images of tables into CSV data.
+Home-page: https://github.com/eihli/image-table-ocr
+Author: Eric Ihli
+Author-email: eihli@owoga.com
+License: UNKNOWN
+Description: 
+        Utilities for turning images of tables into CSV data. Uses Tesseract and OpenCV.
+        
+        Requires binaries for tesseract and pdfimages (from Poppler).
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/plain

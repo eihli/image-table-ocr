@@ -4,15 +4,18 @@ import logging
 import os
 import tempfile
 
-from bs4 import BeautifulSoup as bs
-import requests
-
-
-
+def get_logger():
+    logger = logging.getLogger(__name__)
+    lvl = os.environ.get("PY_LOG_LVL", "info").upper()
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(logging.BASIC_FORMAT)
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    handler.setLevel(lvl)
+    logger.setLevel(lvl)
+    return logger
 
 logger = get_logger()
-
-
 
 
 @contextmanager
@@ -23,13 +26,6 @@ def working_dir(directory):
         yield directory
     finally:
         os.chdir(original_working_dir)
-
-
-def download(url, filepath):
-    response = request_get(url)
-    data = response.content
-    with open(filepath, "wb") as f:
-        f.write(data)
 
 
 def make_tempdir(identifier):
