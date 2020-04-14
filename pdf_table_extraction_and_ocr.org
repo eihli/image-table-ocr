@@ -20,7 +20,19 @@ some unnecessary output is printed in the ~*Python*~ buffer. Adding ~:results
 output~ to a code block will minimize that noise.
 #+END_COMMENT
 
-* Preparing our data
+* Overview
+
+** To get CSV data from a table in a scanned pdf document:
+
+*
+#+BEGIN_SRC shell
+python -m table_ocr.prepare_pdfs /tmp/example-1/example-1.pdf /tmp/example-2/example-2.pdf > /tmp/pdf-images.txt
+cat /tmp/pdf-images.txt | grep .png | xargs -I{} python -m table_ocr.extract_tables {}
+find /tmp -iregex ".*example.*table.*\.png" 2>/dev/null | xargs -I{} python -m table_ocr.extract_cells_from_table {}
+find /tmp -iregex ".*example.*cells.*\.png" 2>/dev/null | xargs -I{} python -m table_ocr.ocr_image {}
+
+#+END_SRC
+* Preparing data
 ** Converting PDFs to images
 
 Not all pdfs need to be sent through OCR to extract the text content. If you can
@@ -168,6 +180,20 @@ cv2.imwrite("resources/examples/example-table.png", image)
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table.png]]
 
+** Improving accuracy
+
+It's likely that some images will contain tables that aren't accurately
+recognized by the code above. The code will then need to be made more robust.
+But how will we know that changes to the code don't break the detection of
+tables that were previously detected?
+
+It might be good to add some type of test suite in the future that contains a
+spec that matches a pdf with the pages and pixel coordinates of the detected
+tables. The coordinates would need to have a range. Something like
+"example-1.pdf, page-2.png, [450:470, 200:210, 800:820, 1270:1290]" where the
+elements of the list are valid x, y, w, h ranges. So the test will pass if if
+the x, y, width and height are anywhere in that range.
+
 * OCR tables
 
 Find the bounding box of each cell in the table. Run tesseract on each cell.
@@ -175,7 +201,7 @@ Print a comma seperated output.
 
 We'll start with an image shown at the end of the previous section.
 
-*** Blur
+** Blur
 
 Blurring helps to make noise less noisy so that the overall structure of an
 image is more detectable.
@@ -205,7 +231,7 @@ cv2.imwrite("resources/examples/example-table-blurred.png", blurred)
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table-blurred.png]]
 
-*** Threshold
+** Threshold
 
 We've got a bunch of pixels that are gray. Thresholding will turn them all
 either black or white. Having all black or white pixels lets us do morphological
@@ -237,7 +263,7 @@ cv2.imwrite("resources/examples/example-table-thresholded.png", img_bin)
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table-thresholded.png]]
 
-*** Finding the vertical and horizontal lines of the table
+** Finding the vertical and horizontal lines of the table
 
 Note: There's a wierd issue with the results of the example below when it's
 evaluated as part of an export or a full-buffer evaluation. If you evaluate the
@@ -270,7 +296,7 @@ cv2.imwrite("resources/examples/example-table-lines.png", mask)
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table-lines.png]]
 
-*** Finding the contours
+** Finding the contours
 
 Blurring and thresholding allow us to find the lines. Opening the lines allows
 us to find the contours.
@@ -334,7 +360,7 @@ bounding_rects = [b for b in bounding_rects if b is not largest_rect]
 cells = [c for c in bounding_rects]
 #+END_SRC
 
-*** Sorting the bounding rectangles
+** Sorting the bounding rectangles
 
 We want to process these from left-to-right, top-to-bottom.
 
@@ -445,7 +471,7 @@ cv2.imwrite("resources/examples/example-table-cell-1-1.png", cell_images_rows[1]
 #+ATTR_HTML: :width 200px :height 100%
 [[file:resources/examples/example-table-cell-1-1.png]]
 
-*** Cropping each cell to the text
+** Cropping each cell to the text
 
 OCR with Tesseract works best when there is about 10 pixels of white border
 around the text.
@@ -487,7 +513,22 @@ cv2.imwrite("resources/examples/example-table-cell-1-1-cropped.png", image)
 #+ATTR_HTML: :width 200px :height 100%
 [[file:resources/examples/example-table-cell-1-1-cropped.png]]
 
-*** OCR each cell
+#+HEADER: :post html-image-size(text=*this*, width="200px")
+#+BEGIN_SRC python :noweb no-export :results raw :exports both
+import cv2
+<<crop-to-text>>
+image = cv2.imread("/tmp/example-1/cells/001-002.png", cv2.IMREAD_GRAYSCALE)
+image = crop_to_text(image)
+cv2.imwrite("/tmp/example-1/cells/001-002-cropped.png", image)
+"/tmp/example-1/cells/001-002-cropped.png"
+#+END_SRC
+
+#+RESULTS:
+#+ATTR_HTML: :width 200px :height 100%
+[[file:/tmp/example-1/cells/001-002-cropped.png]]
+
+
+** OCR each cell
 
 If we cleaned up the images well enough, we might get some accurate OCR!
 
@@ -723,7 +764,7 @@ def main(f):
             cell_filename = "{:03d}-{:03d}.png".format(i, j)
             path = os.path.join(cell_img_dir, cell_filename)
             cv2.imwrite(path, cell)
-            print(cell_filename)
+            print(path)
 
 
 <<extract-cells-from-table>>

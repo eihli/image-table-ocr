@@ -16,7 +16,7 @@ def main(f):
             cell_filename = "{:03d}-{:03d}.png".format(i, j)
             path = os.path.join(cell_img_dir, cell_filename)
             cv2.imwrite(path, cell)
-            print(cell_filename)
+            print(path)
 
 
 def extract_cell_images_from_table(image):
