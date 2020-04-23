@@ -24,14 +24,18 @@ output~ to a code block will minimize that noise.
 
 ** To get CSV data from a table in a scanned pdf document:
 
-*
-#+BEGIN_SRC shell
-python -m table_ocr.prepare_pdfs /tmp/example-1/example-1.pdf /tmp/example-2/example-2.pdf > /tmp/pdf-images.txt
-cat /tmp/pdf-images.txt | grep .png | xargs -I{} python -m table_ocr.extract_tables {}
-find /tmp -iregex ".*example.*table.*\.png" 2>/dev/null | xargs -I{} python -m table_ocr.extract_cells_from_table {}
-find /tmp -iregex ".*example.*cells.*\.png" 2>/dev/null | xargs -I{} python -m table_ocr.ocr_image {}
+#+BEGIN_SRC shell :results none :session *Shell*
+TABLES=("/tmp/example-1/example-1.pdf" "/tmp/example-2/example-2.pdf")
+python -m table_ocr.prepare_pdfs $TABLES | grep .png > /tmp/pdf_images.txt
+# All pngs that don't have "table" in their name. Assume "table" has already been found for files with table in name.
+cat /tmp/pdf-images.txt | xargs -I{} python -m table_ocr.extract_tables {} # | grep tables > /tmp/extracted-tables.txt
+cat /tmp/extracted-tables.txt | xargs -I{} python -m table_ocr.extract_cells_from_table {} # | grep cells > /tmp/extracted-cells.txt
+cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {}
 
+# This next one needs to be run on each subdirectory one at a time.
+python -m table_ocr.ocr_to_csv $(find . -iregex ".*cells.*ocr_data.*\.txt" 2>/dev/null)
 #+END_SRC
+
 * Preparing data
 ** Converting PDFs to images
 
@@ -61,6 +65,9 @@ def pdfimages(pdf_filepath):
     Uses the `pdfimages` utility from Poppler
     (https://poppler.freedesktop.org/). Creates images out of each page. Images
     are prefixed by their name sans extension and suffixed by their page number.
+
+    This should work up to pdfs with 999 pages since find matching files in dir
+    uses 3 digits in its regex.
     """
     directory, filename = os.path.split(pdf_filepath)
     filename_sans_ext = filename.split(".pdf")[0]
@@ -74,7 +81,7 @@ def find_matching_files_in_dir(file_prefix, directory):
     files = [
         filename
         for filename in os.listdir(directory)
-        if re.match(r"{}.*\.png".format(re.escape(file_prefix)), filename)
+        if re.match(r"{}-\d{{3}}.*\.png".format(re.escape(file_prefix)), filename)
     ]
     return files
 #+END_SRC
@@ -730,20 +737,22 @@ def main(files):
     results = []
     for f in files:
         directory, filename = os.path.split(f)
-
         image = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
         tables = find_tables(image)
         files = []
+        filename_sans_extension = os.path.splitext(filename)[0]
+        if tables:
+            os.makedirs(os.path.join(directory, filename_sans_extension), exist_ok=True)
         for i, table in enumerate(tables):
-            filename_sans_extension = os.path.splitext(filename)[0]
-            table_filename = "{}-table-{:03d}.png".format(filename_sans_extension, i)
-            table_filepath = os.path.join(directory, table_filename)
+            table_filename = "table-{:03d}.png".format(i)
+            table_filepath = os.path.join(directory, filename_sans_extension, table_filename)
             files.append(table_filepath)
             cv2.imwrite(table_filepath, table)
-        results.append((f, files))
+        if tables:
+            results.append((f, files))
 
     for image_filename, table_filenames in results:
-        print("{}\n{}\n".format(image_filename, "\n".join(table_filenames)))
+        print("\n".join(table_filenames))
 
 <<detect-table>>
 

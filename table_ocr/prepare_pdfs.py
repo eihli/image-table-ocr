@@ -55,6 +55,9 @@ def pdfimages(pdf_filepath):
     Uses the `pdfimages` utility from Poppler
     (https://poppler.freedesktop.org/). Creates images out of each page. Images
     are prefixed by their name sans extension and suffixed by their page number.
+
+    This should work up to pdfs with 999 pages since find matching files in dir
+    uses 3 digits in its regex.
     """
     directory, filename = os.path.split(pdf_filepath)
     filename_sans_ext = filename.split(".pdf")[0]
@@ -68,7 +71,7 @@ def find_matching_files_in_dir(file_prefix, directory):
     files = [
         filename
         for filename in os.listdir(directory)
-        if re.match(r"{}.*\.png".format(re.escape(file_prefix)), filename)
+        if re.match(r"{}-\d{{3}}.*\.png".format(re.escape(file_prefix)), filename)
     ]
     return files
 def preprocess_img(filepath):

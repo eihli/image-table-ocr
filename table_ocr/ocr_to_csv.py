@@ -23,7 +23,7 @@ def main(files):
     writer = csv.writer(csv_file)
     writer.writerows(rows)
     print(csv_file.getvalue())
-   
+
 if __name__ == "__main__":
     args = parser.parse_args()
     main(args.files)

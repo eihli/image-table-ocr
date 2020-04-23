@@ -11,20 +11,22 @@ def main(files):
     results = []
     for f in files:
         directory, filename = os.path.split(f)
-
         image = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
         tables = find_tables(image)
         files = []
+        filename_sans_extension = os.path.splitext(filename)[0]
+        if tables:
+            os.makedirs(os.path.join(directory, filename_sans_extension), exist_ok=True)
         for i, table in enumerate(tables):
-            filename_sans_extension = os.path.splitext(filename)[0]
-            table_filename = "{}-table-{:03d}.png".format(filename_sans_extension, i)
-            table_filepath = os.path.join(directory, table_filename)
+            table_filename = "table-{:03d}.png".format(i)
+            table_filepath = os.path.join(directory, filename_sans_extension, table_filename)
             files.append(table_filepath)
             cv2.imwrite(table_filepath, table)
-        results.append((f, files))
+        if tables:
+            results.append((f, files))
 
     for image_filename, table_filenames in results:
-        print("{}\n{}\n".format(image_filename, "\n".join(table_filenames)))
+        print("\n".join(table_filenames))
 
 def find_tables(image):
     BLUR_KERNEL_SIZE = (17, 17)
