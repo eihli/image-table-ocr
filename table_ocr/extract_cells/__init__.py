@@ -1,24 +1,4 @@
-import os
-import sys
-
 import cv2
-
-from table_ocr.extract_cells import extract_cells_from_table
-
-def main(f):
-    results = []
-    directory, filename = os.path.split(f)
-    table = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
-    rows = extract_cell_images_from_table(table)
-    cell_img_dir = os.path.join(directory, "cells")
-    os.makedirs(cell_img_dir, exist_ok=True)
-    for i, row in enumerate(rows):
-        for j, cell in enumerate(row):
-            cell_filename = "{:03d}-{:03d}.png".format(i, j)
-            path = os.path.join(cell_img_dir, cell_filename)
-            cv2.imwrite(path, cell)
-            print(path)
-
 
 def extract_cell_images_from_table(image):
     BLUR_KERNEL_SIZE = (17, 17)
@@ -115,6 +95,3 @@ def extract_cell_images_from_table(image):
             cell_images_row.append(image[y:y+h, x:x+w])
         cell_images_rows.append(cell_images_row)
     return cell_images_rows
-
-if __name__ == "__main__":
-    main(sys.argv[1])

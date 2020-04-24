@@ -3,7 +3,7 @@ import sys
 
 import cv2
 
-from table_ocr.extract_cells import extract_cells_from_table
+from table_ocr.extract_cells import extract_cell_images_from_table
 
 def main(f):
     results = []

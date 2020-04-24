@@ -3,7 +3,7 @@
 #+TITLE: PDF Parsing
 #+PROPERTY: header-args :session *Python*
 #+STARTUP: inlineimages
-#+OPTIONS: ^:nil
+#+OPTIONS: ^:nil H:4
 
 #+BEGIN_COMMENT
 Some notes about the header for those not familiar with Org Mode:
@@ -659,13 +659,13 @@ setuptools.setup(
 
 ** table_ocr
 *** table_ocr/__init__.py
-#+BEGIN_SRC python :tangle table_ocr/__init__.py :mkdirp yes :results none
+#+BEGIN_SRC python :tangle table_ocr/__init__.py :results none :exports none
 
 #+END_SRC
 
 *** table_ocr/util.py
 
-#+BEGIN_SRC python :tangle table_ocr/util.py :mkdirp yes :results none
+#+BEGIN_SRC python :tangle table_ocr/util.py :results none
 from contextlib import contextmanager
 import functools
 import logging
@@ -687,11 +687,12 @@ def working_dir(directory):
 def make_tempdir(identifier):
     return tempfile.mkdtemp(prefix="{}_".format(identifier))
 #+END_SRC
+
 *** table_ocr/pdf_to_images/
 **** table_ocr/pdf_to_images/__init__.py
 #+NAME: pdf_to_images/__init__.py
-#+HEADER: :mkdirp yes :tangle table_ocr/pdf_to_images/__init__.py
-#+BEGIN_SRC python :noweb strip-export :results none
+#+HEADER: :tangle table_ocr/pdf_to_images/__init__.py
+#+BEGIN_SRC python :results none
 import os
 import re
 import subprocess
@@ -764,14 +765,22 @@ import cv2
 
 **** table_ocr/extract_tables/__main__.py
 
-#+BEGIN_SRC shell
-. ~/.virtualenvs/lotto_odds/bin/activate
-python -m pdf.extract_tables "resources/examples/example-page.png"
-#+END_SRC
+Takes 1 or more image paths as arguments.
 
-#+RESULTS:
-| resources/examples/example-page.png           |
-| resources/examples/example-page-table-000.png |
+Images are opened and read with OpenCV.
+
+Tables are detected and extracted to a new subdirectory of the given image. The
+subdirectory will be the filename sans the extension. The tables inside that
+directory will be named ~table-000.png~.
+
+If you want to do something with the output, like pipe the paths of the
+extracted tables into some other utility, here is a description of the output.
+
+For each image path given as an agument, outputs:
+
+1. The given image path
+2. Paths of extracted tables; seperated by newlines
+3. Empty newline
 
 #+NAME: extract_tables/__main__.py
 #+BEGIN_SRC python :tangle table_ocr/extract_tables/__main__.py :results none
@@ -816,19 +825,25 @@ if __name__ == "__main__":
     main(files)
 #+END_SRC
 
-*** table_ocr/extract_cells_from_table.py
+*** table_ocr/extract_cells/
 
-#+BEGIN_SRC shell :results none
-. ~/.virtualenvs/lotto_odds/bin/activate
-python -m pdf.extract_cells_from_table "resources/examples/example-table.png"
+**** table_ocr/extract_cells/__init__.py
+
+#+BEGIN_SRC python :tangle table_ocr/extract_cells/__init__.py
+import cv2
+
+<<extract-cells-from-table>>
 #+END_SRC
 
-#+BEGIN_SRC python :noweb yes :tangle table_ocr/extract_cells_from_table.py :results none
+**** table_ocr/extract_cells/__main__.py
+
+#+BEGIN_SRC python :tangle table_ocr/extract_cells/__main__.py :results none
 import os
 import sys
 
 import cv2
-import pytesseract
+
+from table_ocr.extract_cells import extract_cell_images_from_table
 
 def main(f):
     results = []
