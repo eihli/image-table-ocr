@@ -9,6 +9,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument("files", nargs="+")
 
 def main(files):
+    """Files must be sorted lexicographically
+    Filenames must be <row>-<colum>.txt.
+    000-000.txt
+    000-001.txt
+    001-000.txt
+    etc...
+    """
     rows = []
     for f in files:
         directory, filename = os.path.split(f)
@@ -26,4 +33,6 @@ def main(files):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    main(args.files)
+    files = args.files
+    files.sort()
+    main(files)

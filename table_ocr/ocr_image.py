@@ -1,8 +1,19 @@
+import argparse
+import math
 import os
 import sys
 
 import cv2
 import pytesseract
+
+description="""Takes a single argument that is the image to OCR.
+Remaining arguments are passed directly to Tesseract.
+
+Attempts to make OCR more accurate by performing some modifications on the image.
+Saves the modified image and the OCR text in an `ocr_data` directory.
+Filenames are of the format for training with tesstrain."""
+parser = argparse.ArgumentParser(description=description)
+parser.add_argument("image", help="filepath of image to perform OCR")
 
 def crop_to_text(image):
     MAX_COLOR_VAL = 255
@@ -18,30 +29,32 @@ def crop_to_text(image):
         SUBTRACT_FROM_MEAN,
     )
 
-    # Get rid of littl noise.
-    kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
-    opened = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, kernel)
+    img_h, img_w = image.shape
+    horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (int(img_w * 0.5), 1))
+    vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, int(img_h * 0.7)))
+    horizontal_lines = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, horizontal_kernel)
+    vertical_lines = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, vertical_kernel)
+    both = horizontal_lines + vertical_lines
+    cleaned = img_bin - both
 
-    # Dilate so each digit is connected, so we can get a bounding rectangle
-    # around all of the digits as one contour. This will make the bounding
-    # rectangle 8 pixels wider on the left and right, so we'll need to crop that
-    # out at the end so that we don't pick up stray border pixels.
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (16, 1))
-    dilated = cv2.dilate(opened, kernel)
+    # Get rid of little noise.
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    opened = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel)
 
-    contours, hierarchy = cv2.findContours(dilated, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-
+    contours, hierarchy = cv2.findContours(opened, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     bounding_rects = [cv2.boundingRect(c) for c in contours]
-
+    NUM_PX_COMMA = 6
     if bounding_rects:
-        # The largest contour is certainly the text that we're looking for.
-        largest_rect = max(bounding_rects, key=lambda r: r[2] * r[3])
-        x, y, w, h = largest_rect
-        # Commas sometimes go a little below the bounding box and we don't want
-        # to lost them or turn them into periods.
-        img_h, img_w = image.shape
-        cropped = image[y:min(img_h, y+h+6), x+8:x+w-8]
+        minx, miny, maxx, maxy = math.inf, math.inf, 0, 0
+        for x, y, w, h in bounding_rects:
+            minx = min(minx, x)
+            miny = min(miny, y)
+            maxx = max(maxx, x + w)
+            maxy = max(maxy, y + h)
+        x, y, w, h = minx, miny, maxx - minx, maxy - miny
+        cropped = image[y:min(img_h, y+h+NUM_PX_COMMA), x:min(img_w, x+w)]
     else:
+        # If we morphed out all of the text, fallback to using the unmorphed image.
         cropped = image
     bordered = cv2.copyMakeBorder(cropped, 5, 5, 5, 5, cv2.BORDER_CONSTANT, None, 255)
     return bordered
@@ -51,19 +64,21 @@ def ocr_image(image, config):
         config=config
     )
 
-def main(f):
-    directory, filename = os.path.split(f)
+def main(image_file, tess_args):
+    directory, filename = os.path.split(image_file)
     filename_sans_ext, ext = os.path.splitext(filename)
-    image = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
     cropped = crop_to_text(image)
     ocr_data_dir = os.path.join(directory, "ocr_data")
     os.makedirs(ocr_data_dir, exist_ok=True)
     out_imagepath = os.path.join(ocr_data_dir, filename)
     out_txtpath = os.path.join(ocr_data_dir, "{}.gt.txt".format(filename_sans_ext))
     cv2.imwrite(out_imagepath, cropped)
-    txt = ocr_image(cropped, "--psm 7")
+    txt = ocr_image(cropped, " ".join(tess_args))
+    print(txt)
     with open(out_txtpath, "w") as txt_file:
         txt_file.write(txt)
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    args, tess_args = parser.parse_known_args()
+    main(args.image, tess_args)
