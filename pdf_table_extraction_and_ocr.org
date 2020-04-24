@@ -837,6 +837,18 @@ import cv2
 
 **** table_ocr/extract_cells/__main__.py
 
+Takes as a command line argument a path to an image of a table.
+
+Detects cells in the table and extracts each cell to an image file in a new
+~/cells/~ subdirectory in the same directory of the given image's path.
+
+Each cell filename is suffixed with ~<row>-<column>~ so that the filenames can
+be sorted lexicographically and will align with reading the cells from
+left-to-right, top-to-bottom.
+
+Prints to stdout the lexicographically sorted list of filenames of the extracted
+cells.
+
 #+BEGIN_SRC python :tangle table_ocr/extract_cells/__main__.py :results none
 import os
 import sys
@@ -866,22 +878,24 @@ if __name__ == "__main__":
     main(sys.argv[1])
 #+END_SRC
 
-*** table_ocr/ocr_image.py
+*** table_ocr/ocr_image/
+**** table_ocr/ocr_image/__init__.py
+#+BEGIN_SRC python :tangle table_ocr/ocr_image/__init__.py
+import math
+
+import cv2
+
+<<crop-to-text>>
+<<ocr-image>>
+#+END_SRC
+**** table_ocr/ocr_image/__main__.py
 
 This does a little bit of cleanup before sending it through tesseract.
 
 Creates images and text files that can be used for training tesseract. See
 https://github.com/tesseract-ocr/tesstrain.
 
-#+BEGIN_SRC shell :results output
-. ~/.virtualenvs/lotto_odds/bin/activate
-python -m table_ocr.ocr_cell resources/examples/cells/000-000.png
-#+END_SRC
-
-#+RESULTS:
-: PRIZE
-
-#+BEGIN_SRC python :tangle table_ocr/ocr_image.py :mkdirp yes :results none
+#+BEGIN_SRC python :tangle table_ocr/ocr_image/__main__.py :mkdirp yes :results none
 import argparse
 import math
 import os
@@ -921,21 +935,15 @@ if __name__ == "__main__":
     args, tess_args = parser.parse_known_args()
     main(args.image, tess_args)
 #+END_SRC
-
-*** table_ocr/ocr_to_csv.py
-
-#+BEGIN_SRC python :tangle table_ocr/ocr_to_csv.py
-import argparse
+*** table_ocr/ocr_to_csv/
+**** table_ocr/ocr_to_csv/__init__.py
+#+BEGIN_SRC python :tangle table_ocr/ocr_to_csv/__init__.py
 import csv
 import io
 import os
-import sys
-import tempfile
 
-parser = argparse.ArgumentParser()
-parser.add_argument("files", nargs="+")
 
-def main(files):
+def text_files_to_csv(files):
     """Files must be sorted lexicographically
     Filenames must be <row>-<colum>.txt.
     000-000.txt
@@ -956,7 +964,23 @@ def main(files):
     csv_file = io.StringIO()
     writer = csv.writer(csv_file)
     writer.writerows(rows)
-    print(csv_file.getvalue())
+    return csv_file.getvalue()
+#+END_SRC
+**** table_ocr/ocr_to_csv/__main__.py
+
+#+BEGIN_SRC python :tangle table_ocr/ocr_to_csv/__main__.py
+import argparse
+import os
+
+from table_ocr.ocr_to_csv import text_files_to_csv
+
+parser = argparse.ArgumentParser()
+parser.add_argument("files", nargs="+")
+
+
+def main(files):
+    print(text_files_to_csv(files))
+
 
 if __name__ == "__main__":
     args = parser.parse_args()

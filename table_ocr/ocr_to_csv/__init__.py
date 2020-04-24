@@ -1,14 +1,9 @@
-import argparse
 import csv
 import io
 import os
-import sys
-import tempfile
 
-parser = argparse.ArgumentParser()
-parser.add_argument("files", nargs="+")
 
-def main(files):
+def text_files_to_csv(files):
     """Files must be sorted lexicographically
     Filenames must be <row>-<colum>.txt.
     000-000.txt
@@ -29,10 +24,4 @@ def main(files):
     csv_file = io.StringIO()
     writer = csv.writer(csv_file)
     writer.writerows(rows)
-    print(csv_file.getvalue())
-
-if __name__ == "__main__":
-    args = parser.parse_args()
-    files = args.files
-    files.sort()
-    main(files)
+    return csv_file.getvalue()
