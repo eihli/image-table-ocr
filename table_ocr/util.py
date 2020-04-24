@@ -4,8 +4,8 @@ import logging
 import os
 import tempfile
 
-def get_logger():
-    logger = logging.getLogger(__name__)
+def get_logger(name):
+    logger = logging.getLogger(name)
     lvl = os.environ.get("PY_LOG_LVL", "info").upper()
     handler = logging.StreamHandler()
     formatter = logging.Formatter(logging.BASIC_FORMAT)
@@ -14,9 +14,6 @@ def get_logger():
     handler.setLevel(lvl)
     logger.setLevel(lvl)
     return logger
-
-logger = get_logger()
-
 
 @contextmanager
 def working_dir(directory):

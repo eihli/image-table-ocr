@@ -66,6 +66,27 @@ probably aren't necessary.
 
 This code calls out to [[https://manpages.debian.org/testing/poppler-utils/pdfimages.1.en.html][pdfimages]] from [[https://poppler.freedesktop.org/][Poppler]].
 
+#+NAME: pdf-to-images-overview
+#+HEADER: :mkdirp yes :tangle table_ocr/pdf_to_images/__init__.py
+#+BEGIN_SRC python :noweb strip-export :results none
+import os
+import re
+import subprocess
+
+from table_ocr.util import get_logger, working_dir
+
+logger = get_logger(__name__)
+
+# Wrapper around the Poppler command line utility "pdfimages" and helpers for
+# finding the output files of that command.
+<<pdf-to-images>>
+
+# Helpers to detect orientation of the images that Poppler extracted and if the
+# images are rotated or skewed, use ImageMagick's `mogrify` to correct the
+# rotation. (Makes OCR more straightforward.)
+<<fix-orientation>>
+#+END_SRC
+
 #+NAME: pdf-to-images
 #+BEGIN_SRC python :results none
 def pdf_to_images(pdf_filepath):
@@ -94,7 +115,9 @@ def pdfimages(pdf_filepath):
     filename_sans_ext = filename.split(".pdf")[0]
     subprocess.run(["pdfimages", "-png", pdf_filepath, filename.split(".pdf")[0]])
     image_filenames = find_matching_files_in_dir(filename_sans_ext, directory)
-    logger.debug("Converted {} into files:\n{}".format(pdf_filepath, "\n".join(image_filenames)))
+    logger.debug(
+        "Converted {} into files:\n{}".format(pdf_filepath, "\n".join(image_filenames))
+    )
     return image_filenames
 
 
@@ -665,9 +688,6 @@ import tempfile
 
 <<get-logger>>
 
-logger = get_logger()
-
-
 @contextmanager
 def working_dir(directory):
     original_working_dir = os.getcwd()
@@ -682,7 +702,7 @@ def make_tempdir(identifier):
     return tempfile.mkdtemp(prefix="{}_".format(identifier))
 #+END_SRC
 
-*** table_ocr/prepare_pdfs.py
+*** table_ocr/pdf_to_images/__main__.py
 
 Takes a variable number of pdf files and creates images out of each page of the
 file using ~pdfimages~ from Poppler. Images are created in the same directory
@@ -696,23 +716,19 @@ python -m table_ocr.prepare_pdfs /tmp/file1/file1.pdf /tmp/file2/file2.pdf ...
 #+END_SRC
 
 
-#+BEGIN_SRC python :tangle table_ocr/prepare_pdfs.py :noweb yes
+#+NAME: pdf_to_images/__main__.py
+#+HEADER: :tangle table_ocr/pdf_to_images/__main__.py
+#+BEGIN_SRC python
 import argparse
-import logging
-import os
-import re
-import subprocess
-import sys
 
-from table_ocr.util import working_dir, make_tempdir
+from table_ocr.util import working_dir, make_tempdir, get_logger
+from table_ocr.pdf_to_images import pdf_to_images, preprocess_img
 
-
-<<get-logger>>
-
-logger = get_logger()
+logger = get_logger(__name__)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("files", nargs="+")
+
 
 def main(files):
     pdf_images = []
@@ -726,9 +742,6 @@ def main(files):
     for pdf, images in pdf_images:
         print("{}\n{}\n".format(pdf, "\n".join(images)))
 
-
-<<pdf-to-images>>
-<<fix-orientation>>
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -961,8 +974,8 @@ with ~advice-add~.
 ** Logging
 
 #+BEGIN_SRC python :eval query :noweb-ref get-logger
-def get_logger():
-    logger = logging.getLogger(__name__)
+def get_logger(name):
+    logger = logging.getLogger(name)
     lvl = os.environ.get("PY_LOG_LVL", "info").upper()
     handler = logging.StreamHandler()
     formatter = logging.Formatter(logging.BASIC_FORMAT)

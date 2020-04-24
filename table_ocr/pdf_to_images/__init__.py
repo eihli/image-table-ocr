@@ -1,42 +1,13 @@
-import argparse
-import logging
 import os
 import re
 import subprocess
-import sys
 
-from table_ocr.util import working_dir, make_tempdir
+from table_ocr.util import get_logger, working_dir
 
+logger = get_logger(__name__)
 
-def get_logger(name):
-    logger = logging.getLogger(name)
-    lvl = os.environ.get("PY_LOG_LVL", "info").upper()
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(logging.BASIC_FORMAT)
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    handler.setLevel(lvl)
-    logger.setLevel(lvl)
-    return logger
-
-logger = get_logger()
-
-parser = argparse.ArgumentParser()
-parser.add_argument("files", nargs="+")
-
-def main(files):
-    pdf_images = []
-    for f in files:
-        pdf_images.append((f, pdf_to_images(f)))
-
-    for pdf, images in pdf_images:
-        for image in images:
-            preprocess_img(image)
-
-    for pdf, images in pdf_images:
-        print("{}\n{}\n".format(pdf, "\n".join(images)))
-
-
+# Wrapper around the Poppler command line utility "pdfimages" and helpers for
+# finding the output files of that command.
 def pdf_to_images(pdf_filepath):
     """
     Turn a pdf into images
@@ -76,6 +47,10 @@ def find_matching_files_in_dir(file_prefix, directory):
         if re.match(r"{}-\d{{3}}.*\.png".format(re.escape(file_prefix)), filename)
     ]
     return files
+
+# Helpers to detect orientation of the images that Poppler extracted and if the
+# images are rotated or skewed, use ImageMagick's `mogrify` to correct the
+# rotation. (Makes OCR more straightforward.)
 def preprocess_img(filepath):
     """
     Processing that involves running shell executables,
@@ -99,7 +74,3 @@ def get_rotate(image_filepath):
 
 def mogrify(image_filepath, rotate):
     subprocess.run(["mogrify", "-rotate", rotate, image_filepath])
-
-if __name__ == "__main__":
-    args = parser.parse_args()
-    main(args.files)
