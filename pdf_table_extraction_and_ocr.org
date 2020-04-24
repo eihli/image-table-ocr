@@ -66,29 +66,10 @@ probably aren't necessary.
 
 This code calls out to [[https://manpages.debian.org/testing/poppler-utils/pdfimages.1.en.html][pdfimages]] from [[https://poppler.freedesktop.org/][Poppler]].
 
-#+NAME: pdf-to-images-overview
-#+HEADER: :mkdirp yes :tangle table_ocr/pdf_to_images/__init__.py
-#+BEGIN_SRC python :noweb strip-export :results none
-import os
-import re
-import subprocess
-
-from table_ocr.util import get_logger, working_dir
-
-logger = get_logger(__name__)
-
-# Wrapper around the Poppler command line utility "pdfimages" and helpers for
-# finding the output files of that command.
-<<pdf-to-images>>
-
-# Helpers to detect orientation of the images that Poppler extracted and if the
-# images are rotated or skewed, use ImageMagick's `mogrify` to correct the
-# rotation. (Makes OCR more straightforward.)
-<<fix-orientation>>
-#+END_SRC
-
 #+NAME: pdf-to-images
 #+BEGIN_SRC python :results none
+# Wrapper around the Poppler command line utility "pdfimages" and helpers for
+# finding the output files of that command.
 def pdf_to_images(pdf_filepath):
     """
     Turn a pdf into images
@@ -148,6 +129,10 @@ Script: Latin
 Script confidence: 2.44
 #+END_EXAMPLE
 
+The following are some helpers to detect orientation of the images that Poppler
+extracted and, if the images are rotated or skewed, use ImageMagick's `mogrify`
+to correct the rotation. This makes OCR more straightforward.
+
 #+NAME: fix-orientation
 #+BEGIN_SRC python :results none
 def preprocess_img(filepath):
@@ -189,7 +174,8 @@ The blurring, thresholding, and line detection is used here as well as later on
 for cell extraction. They are good techniques for cleaning an image up in a way
 that makes things like shape detection more accurate.
 
-#+BEGIN_SRC python :noweb-ref detect-table :results none :noweb no-export
+#+NAME: detect-tables
+#+BEGIN_SRC python :results none :noweb yes
 def find_tables(image):
     <<blur>>
     <<threshold>>
@@ -215,10 +201,10 @@ def find_tables(image):
 #+END_SRC
 
 #+HEADER: :post html-image-size(text=*this*, width="500px")
-#+BEGIN_SRC python :noweb-ref test-detect-table :noweb no-export :results raw
+#+BEGIN_SRC python :noweb-ref test-detect-table :noweb strip-export :results raw
 import cv2
 
-<<detect-table>>
+<<detect-tables>>
 
 image_filename = "resources/examples/example-page.png"
 image = cv2.imread(image_filename, cv2.IMREAD_GRAYSCALE)
@@ -701,8 +687,25 @@ def working_dir(directory):
 def make_tempdir(identifier):
     return tempfile.mkdtemp(prefix="{}_".format(identifier))
 #+END_SRC
+*** table_ocr/pdf_to_images/
+**** table_ocr/pdf_to_images/__init__.py
+#+NAME: pdf_to_images/__init__.py
+#+HEADER: :mkdirp yes :tangle table_ocr/pdf_to_images/__init__.py
+#+BEGIN_SRC python :noweb strip-export :results none
+import os
+import re
+import subprocess
 
-*** table_ocr/pdf_to_images/__main__.py
+from table_ocr.util import get_logger, working_dir
+
+logger = get_logger(__name__)
+
+<<pdf-to-images>>
+
+<<fix-orientation>>
+#+END_SRC
+
+**** table_ocr/pdf_to_images/__main__.py
 
 Takes a variable number of pdf files and creates images out of each page of the
 file using ~pdfimages~ from Poppler. Images are created in the same directory
@@ -748,7 +751,18 @@ if __name__ == "__main__":
     main(args.files)
 #+END_SRC
 
-*** table_ocr/extract_tables.py
+*** table_ocr/extract_tables/
+**** table_ocr/extract_tables/__init__.py
+
+#+NAME: extract_tables/__init__.py
+#+HEADER: :tangle table_ocr/extract_tables/__init__.py
+#+BEGIN_SRC python
+import cv2
+
+<<detect-tables>>
+#+END_SRC
+
+**** table_ocr/extract_tables/__main__.py
 
 #+BEGIN_SRC shell
 . ~/.virtualenvs/lotto_odds/bin/activate
@@ -759,11 +773,14 @@ python -m pdf.extract_tables "resources/examples/example-page.png"
 | resources/examples/example-page.png           |
 | resources/examples/example-page-table-000.png |
 
-#+BEGIN_SRC python :noweb yes :tangle table_ocr/extract_tables.py :results none
+#+NAME: extract_tables/__main__.py
+#+BEGIN_SRC python :tangle table_ocr/extract_tables/__main__.py :results none
 import argparse
 import os
 
 import cv2
+
+from table_ocr.extract_tables import find_tables
 
 parser = argparse.ArgumentParser()
 parser.add_argument("files", nargs="+")
@@ -781,7 +798,9 @@ def main(files):
             os.makedirs(os.path.join(directory, filename_sans_extension), exist_ok=True)
         for i, table in enumerate(tables):
             table_filename = "table-{:03d}.png".format(i)
-            table_filepath = os.path.join(directory, filename_sans_extension, table_filename)
+            table_filepath = os.path.join(
+                directory, filename_sans_extension, table_filename
+            )
             files.append(table_filepath)
             cv2.imwrite(table_filepath, table)
         if tables:
@@ -790,7 +809,6 @@ def main(files):
     for image_filename, table_filenames in results:
         print("\n".join(table_filenames))
 
-<<detect-table>>
 
 if __name__ == "__main__":
     args = parser.parse_args()

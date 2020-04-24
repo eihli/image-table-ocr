@@ -48,9 +48,6 @@ def find_matching_files_in_dir(file_prefix, directory):
     ]
     return files
 
-# Helpers to detect orientation of the images that Poppler extracted and if the
-# images are rotated or skewed, use ImageMagick's `mogrify` to correct the
-# rotation. (Makes OCR more straightforward.)
 def preprocess_img(filepath):
     """
     Processing that involves running shell executables,
