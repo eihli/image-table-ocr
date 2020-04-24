@@ -22,6 +22,34 @@ output~ to a code block will minimize that noise.
 
 * Overview
 
+This Python package provides utilities for extracting tabular data from PDF
+files and images of tables.
+
+Given an image that contains a table...
+
+#+ATTR_HTML: :width 25%
+[[file:resources/examples/example-page.png]]
+
+Extract the the text into a CSV format...
+
+#+BEGIN_EXAMPLE
+PRIZE,ODDS 1 IN:,# OF WINNERS*
+$3,9.09,"282,447"
+$5,16.66,"154,097"
+$7,40.01,"64,169"
+$10,26.67,"96,283"
+$20,100.00,"25,677"
+$30,290.83,"8,829"
+$50,239.66,"10,714"
+$100,919.66,"2,792"
+$500,"6,652.07",386
+"$40,000","855,899.99",3
+1,i223,
+Toa,,
+,,
+,,"* Based upon 2,567,700"
+#+END_EXAMPLE
+
 ** To get CSV data from a table in a scanned pdf document:
 
 #+BEGIN_SRC shell :results none :session *Shell*
@@ -367,7 +395,8 @@ header bar or something. If we know our cells are all within a certain size (by
 area of pixels) then we can filter out the junk cells by removing cells
 above/below certain sizes.
 
-#+BEGIN_SRC python :noweb-ref bounding-rects :results none
+#+NAME: bounding-rects
+#+BEGIN_SRC python :results none
 contours, heirarchy = cv2.findContours(
     mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE,
 )
@@ -409,7 +438,8 @@ of the rectangles that have a center that is within the top-y and bottom-y
 values of that top-left rectangle. Then we'll sort those rectangles by the x
 value of their center. We'll remove those rectangles from the list and repeat.
 
-#+BEGIN_SRC python :noweb-ref sort-contours :results none
+#+NAME: sort-contours
+#+BEGIN_SRC python :results none
 def cell_in_same_row(c1, c2):
     c1_center = c1[1] + c1[3] - c1[3] / 2
     c2_bottom = c2[1] + c2[3]
@@ -479,7 +509,8 @@ cv2.imwrite("resources/examples/example-table-cells-numbered.png", image)
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table-cells-numbered.png]]
 
-#+BEGIN_SRC python :noweb-ref extract-cells-from-table :noweb yes :eval no
+#+NAME: extract-cells-from-table
+#+BEGIN_SRC python :noweb yes :eval no
 def extract_cell_images_from_table(image):
     <<blur>>
     <<threshold>>
@@ -547,14 +578,16 @@ def crop_to_text(image):
     # Get rid of little noise.
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     opened = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel)
+    opened = cv2.dilate(opened, kernel)
 
     contours, hierarchy = cv2.findContours(opened, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     bounding_rects = [cv2.boundingRect(c) for c in contours]
     NUM_PX_COMMA = 6
     MIN_CHAR_AREA = 5 * 9
-    if bounding_rects:
+    char_sized_bounding_rects = [(x, y, w, h) for x, y, w, h in bounding_rects if w * h > MIN_CHAR_AREA]
+    if char_sized_bounding_rects:
         minx, miny, maxx, maxy = math.inf, math.inf, 0, 0
-        for x, y, w, h in [(x, y, w, h) for x, y, w, h in bounding_rects if w * h > MIN_CHAR_AREA]:
+        for x, y, w, h in char_sized_bounding_rects:
             minx = min(minx, x)
             miny = min(miny, y)
             maxx = max(maxx, x + w)
@@ -562,8 +595,8 @@ def crop_to_text(image):
         x, y, w, h = minx, miny, maxx - minx, maxy - miny
         cropped = image[y:min(img_h, y+h+NUM_PX_COMMA), x:min(img_w, x+w)]
     else:
-        # If we morphed out all of the text, fallback to using the unmorphed image.
-        cropped = image
+        # If we morphed out all of the text, assume an empty image.
+        cropped = MAX_COLOR_VAL * np.ones(shape=(20, 100), dtype=np.uint8)
     bordered = cv2.copyMakeBorder(cropped, 5, 5, 5, 5, cv2.BORDER_CONSTANT, None, 255)
     return bordered
 #+END_SRC
@@ -571,6 +604,7 @@ def crop_to_text(image):
 #+HEADER: :post html-image-size(text=*this*, width="200px")
 #+BEGIN_SRC python :noweb no-export :results raw :exports both
 import cv2
+import numpy as np
 <<crop-to-text>>
 image = cv2.imread("resources/examples/example-table-cell-1-1.png", cv2.IMREAD_GRAYSCALE)
 image = crop_to_text(image)
@@ -606,6 +640,7 @@ def ocr_image(image, config):
 #+BEGIN_SRC python :noweb no-export :exports both
 import pytesseract
 import cv2
+import numpy as np
 image = cv2.imread("resources/examples/example-table-cell-1-1.png", cv2.IMREAD_GRAYSCALE)
 <<crop-to-text>>
 <<ocr-image>>
@@ -884,6 +919,8 @@ if __name__ == "__main__":
 import math
 
 import cv2
+import numpy as np
+import pytesseract
 
 <<crop-to-text>>
 <<ocr-image>>
@@ -902,7 +939,8 @@ import os
 import sys
 
 import cv2
-import pytesseract
+
+from table_ocr.ocr_image import crop_to_text, ocr_image
 
 description="""Takes a single argument that is the image to OCR.
 Remaining arguments are passed directly to Tesseract.
@@ -912,9 +950,6 @@ Saves the modified image and the OCR text in an `ocr_data` directory.
 Filenames are of the format for training with tesstrain."""
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument("image", help="filepath of image to perform OCR")
-
-<<crop-to-text>>
-<<ocr-image>>
 
 def main(image_file, tess_args):
     directory, filename = os.path.split(image_file)

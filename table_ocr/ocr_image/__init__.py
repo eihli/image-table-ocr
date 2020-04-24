@@ -1,6 +1,8 @@
 import math
 
 import cv2
+import numpy as np
+import pytesseract
 
 def crop_to_text(image):
     MAX_COLOR_VAL = 255
@@ -27,14 +29,16 @@ def crop_to_text(image):
     # Get rid of little noise.
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
     opened = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel)
+    opened = cv2.dilate(opened, kernel)
 
     contours, hierarchy = cv2.findContours(opened, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     bounding_rects = [cv2.boundingRect(c) for c in contours]
     NUM_PX_COMMA = 6
     MIN_CHAR_AREA = 5 * 9
-    if bounding_rects:
+    char_sized_bounding_rects = [(x, y, w, h) for x, y, w, h in bounding_rects if w * h > MIN_CHAR_AREA]
+    if char_sized_bounding_rects:
         minx, miny, maxx, maxy = math.inf, math.inf, 0, 0
-        for x, y, w, h in [(x, y, w, h) for x, y, w, h in bounding_rects if w * h > MIN_CHAR_AREA]:
+        for x, y, w, h in char_sized_bounding_rects:
             minx = min(minx, x)
             miny = min(miny, y)
             maxx = max(maxx, x + w)
@@ -42,8 +46,8 @@ def crop_to_text(image):
         x, y, w, h = minx, miny, maxx - minx, maxy - miny
         cropped = image[y:min(img_h, y+h+NUM_PX_COMMA), x:min(img_w, x+w)]
     else:
-        # If we morphed out all of the text, fallback to using the unmorphed image.
-        cropped = image
+        # If we morphed out all of the text, assume an empty image.
+        cropped = MAX_COLOR_VAL * np.ones(shape=(20, 100), dtype=np.uint8)
     bordered = cv2.copyMakeBorder(cropped, 5, 5, 5, 5, cv2.BORDER_CONSTANT, None, 255)
     return bordered
 def ocr_image(image, config):
