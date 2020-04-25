@@ -28,12 +28,12 @@ def main(files):
             cv2.imwrite(table_filepath, table)
         if tables:
             results.append((f, files))
-
-    for image_filename, table_filenames in results:
-        print("\n".join(table_filenames))
-
+    # Results is [[<input image>, [<images of detected tables>]]]
+    return results
 
 if __name__ == "__main__":
     args = parser.parse_args()
     files = args.files
-    main(files)
+    results = main(files)
+    for image, tables in results:
+        print("\n".join(tables))
