@@ -36,7 +36,7 @@ The package is split into modules with narrow focuses.
 - ~ocr_image~ uses Tesseract to OCR the text from an image of a cell.
 - ~ocr_to_csv~ converts into a CSV the directory structure that ~ocr_image~ outputs.
 
-The outputs of a previous model can be used by a subsequent model so that they
+The outputs of a previous module can be used by a subsequent module so that they
 can be chained together to create the entire workflow, as demonstrated by the
 following shell script.
 
