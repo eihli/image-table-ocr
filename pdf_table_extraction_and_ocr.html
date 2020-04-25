@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-04-10 Fri 14:10 -->
+<!-- 2020-04-25 Sat 12:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PDF Parsing</title>
@@ -225,66 +225,254 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org59412d5">1. Preparing our data</a>
+<li><a href="#org1579202">1. Overview</a>
 <ul>
-<li><a href="#org712ee8b">1.1. Converting PDFs to images</a></li>
-<li><a href="#org1b42ded">1.2. Detecting image orientation and applying rotation.</a></li>
+<li><a href="#org39ea9a7">1.1. Requirements</a>
+<ul>
+<li><a href="#orgd07d656">1.1.1. Python packages</a></li>
+<li><a href="#org6d44c18">1.1.2. External</a></li>
 </ul>
 </li>
-<li><a href="#org7b5bda0">2. Detecting tables</a></li>
-<li><a href="#org0201b8f">3. OCR tables</a>
+<li><a href="#orgdd8ad82">1.2. Contributing</a></li>
+<li><a href="#org3ae1ded">1.3. Example usage</a></li>
+<li><a href="#org43c2c09">1.4. Possible improvements</a></li>
+</ul>
+</li>
+<li><a href="#org6412872">2. Preparing data</a>
 <ul>
-<li>
+<li><a href="#orgdc51282">2.1. Converting PDFs to images</a></li>
+<li><a href="#org938b07f">2.2. Detecting image orientation and applying rotation.</a></li>
+</ul>
+</li>
+<li><a href="#orga68497c">3. Detecting tables</a>
 <ul>
-<li><a href="#orged411a4">3.0.1. Blur</a></li>
-<li><a href="#org261362c">3.0.2. Threshold</a></li>
-<li><a href="#org8538093">3.0.3. Finding the vertical and horizontal lines of the table</a></li>
-<li><a href="#org4fb8398">3.0.4. Finding the contours</a></li>
-<li><a href="#org85d4011">3.0.5. Sorting the bounding rectangles</a></li>
-<li><a href="#orgf80e3ed">3.0.6. Cropping each cell to the text</a></li>
-<li><a href="#org87267b7">3.0.7. OCR each cell</a></li>
+<li><a href="#org019e27e">3.1. Improving accuracy</a></li>
+</ul>
+</li>
+<li><a href="#orga12c6cf">4. OCR tables</a>
+<ul>
+<li><a href="#orgc895682">4.1. Training Tesseract</a></li>
+<li><a href="#org1ce3ded">4.2. Blur</a></li>
+<li><a href="#org5ebc5e9">4.3. Threshold</a></li>
+<li><a href="#orga8b32e0">4.4. Finding the vertical and horizontal lines of the table</a></li>
+<li><a href="#org1a881f5">4.5. Finding the contours</a></li>
+<li><a href="#org094eedd">4.6. Sorting the bounding rectangles</a></li>
+<li><a href="#org87d2780">4.7. Cropping each cell to the text</a></li>
+<li><a href="#org8de0931">4.8. OCR each cell</a></li>
+</ul>
+</li>
+<li><a href="#orgf6e8639">5. Files</a>
+<ul>
+<li><a href="#orgba6f775">5.1. setup.py</a></li>
+<li><a href="#org6a407ab">5.2. table_ocr</a>
+<ul>
+<li><a href="#org465ea6b">5.2.1. table_ocr/__init__.py</a></li>
+<li><a href="#org7a49723">5.2.2. table_ocr/util.py</a></li>
+<li><a href="#orgd6e9341">5.2.3. table_ocr/pdf_to_images/</a>
+<ul>
+<li><a href="#org8a31fd7">5.2.3.1. table_ocr/pdf_to_images/__init__.py</a></li>
+<li><a href="#org1e4f0c6">5.2.3.2. table_ocr/pdf_to_images/__main__.py</a></li>
+</ul>
+</li>
+<li><a href="#orgb1142c2">5.2.4. table_ocr/extract_tables/</a>
+<ul>
+<li><a href="#org4d226b5">5.2.4.1. table_ocr/extract_tables/__init__.py</a></li>
+<li><a href="#org28b104f">5.2.4.2. table_ocr/extract_tables/__main__.py</a></li>
+</ul>
+</li>
+<li><a href="#org0d21747">5.2.5. table_ocr/extract_cells/</a>
+<ul>
+<li><a href="#org8556f38">5.2.5.1. table_ocr/extract_cells/__init__.py</a></li>
+<li><a href="#orgb988224">5.2.5.2. table_ocr/extract_cells/__main__.py</a></li>
+</ul>
+</li>
+<li><a href="#org04c3633">5.2.6. table_ocr/ocr_image/</a>
+<ul>
+<li><a href="#orgd01e3e7">5.2.6.1. table_ocr/ocr_image/__init__.py</a></li>
+<li><a href="#org2a58364">5.2.6.2. table_ocr/ocr_image/__main__.py</a></li>
+</ul>
+</li>
+<li><a href="#org2c74337">5.2.7. table_ocr/ocr_to_csv/</a>
+<ul>
+<li><a href="#orgf6b3289">5.2.7.1. table_ocr/ocr_to_csv/__init__.py</a></li>
+<li><a href="#org4befe04">5.2.7.2. table_ocr/ocr_to_csv/__main__.py</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org29c3621">4. Files</a>
-<ul>
-<li><a href="#org4ab36c6">4.1. setup.py</a></li>
-<li><a href="#org47315fb">4.2. table_image_ocr</a>
-<ul>
-<li><a href="#org066bf49">4.2.1. table_image_ocr/__init__.py</a></li>
-<li><a href="#org95b6056">4.2.2. table_image_ocr/util.py</a></li>
-<li><a href="#org6511b91">4.2.3. table_image_ocr/prepare_pdfs.py</a></li>
-<li><a href="#orgaa4f936">4.2.4. table_image_ocr/extract_tables.py</a></li>
-<li><a href="#org67a9781">4.2.5. table_image_ocr/extract_cells_from_table.py</a></li>
 </ul>
 </li>
+<li><a href="#org487dcc8">6. Utils</a>
+<ul>
+<li><a href="#org457567f">6.1. Logging</a></li>
 </ul>
 </li>
-<li><a href="#org37d29da">5. Utils</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org59412d5" class="outline-2">
-<h2 id="org59412d5"><span class="section-number-2">1</span> Preparing our data</h2>
+<div id="outline-container-org1579202" class="outline-2">
+<h2 id="org1579202"><span class="section-number-2">1</span> Overview</h2>
 <div class="outline-text-2" id="text-1">
+<p>
+This Python package provides utilities for extracting tabular data from PDF
+files and images of tables.
+</p>
+
+<p>
+Given an image that contains a table&#x2026;
+</p>
+
+
+<div class="figure">
+<p><img src="resources/examples/example-page.png" alt="example-page.png" width="25%" />
+</p>
 </div>
-<div id="outline-container-org712ee8b" class="outline-3">
-<h3 id="org712ee8b"><span class="section-number-3">1.1</span> Converting PDFs to images</h3>
+
+<p>
+Extract the the text into a CSV format&#x2026;
+</p>
+
+<pre class="example">
+PRIZE,ODDS 1 IN:,# OF WINNERS*
+$3,9.09,"282,447"
+$5,16.66,"154,097"
+$7,40.01,"64,169"
+$10,26.67,"96,283"
+$20,100.00,"25,677"
+$30,290.83,"8,829"
+$50,239.66,"10,714"
+$100,919.66,"2,792"
+$500,"6,652.07",386
+"$40,000","855,899.99",3
+1,i223,
+Toa,,
+,,
+,,"* Based upon 2,567,700"
+</pre>
+
+<p>
+The package is split into modules with narrow focuses.
+</p>
+
+<ul class="org-ul">
+<li><code>pdf_to_images</code> uses Poppler and ImageMagick to extract images from a PDF.</li>
+<li><code>extract_tables</code> finds and extracts table-looking things from an image.</li>
+<li><code>extract_cells</code> extracts and orders cells from a table.</li>
+<li><code>ocr_image</code> uses Tesseract to turn a OCR the text from an image of a cell.</li>
+<li><code>ocr_to_csv</code> converts into a CSV the directory structure that <code>ocr_image</code> outputs.</li>
+</ul>
+</div>
+
+<div id="outline-container-org39ea9a7" class="outline-3">
+<h3 id="org39ea9a7"><span class="section-number-3">1.1</span> Requirements</h3>
 <div class="outline-text-3" id="text-1-1">
+</div>
+<div id="outline-container-orgd07d656" class="outline-4">
+<h4 id="orgd07d656"><span class="section-number-4">1.1.1</span> Python packages</h4>
+<div class="outline-text-4" id="text-1-1-1">
+<ul class="org-ul">
+<li>numpy</li>
+<li>opencv-python</li>
+<li>pytesseract</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org6d44c18" class="outline-4">
+<h4 id="org6d44c18"><span class="section-number-4">1.1.2</span> External</h4>
+<div class="outline-text-4" id="text-1-1-2">
+<ul class="org-ul">
+<li><code>pdfimages</code> from Poppler</li>
+<li>Tesseract</li>
+<li><code>mogfrify</code> ImageMagick</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgdd8ad82" class="outline-3">
+<h3 id="orgdd8ad82"><span class="section-number-3">1.2</span> Contributing</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+This package was created in a <a href="https://en.wikipedia.org/wiki/Literate_programming">literate programming</a> style with the help of <a href="https://orgmode.org/worg/org-contrib/babel/intro.html">Babel</a>.
+</p>
+
+<p>
+The unfortunate downside is the obscurity of the tooling. It creates a bit of a
+barrier for contributors who aren&rsquo;t already familiar with Emacs and Babel.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3ae1ded" class="outline-3">
+<h3 id="org3ae1ded"><span class="section-number-3">1.3</span> Example usage</h3>
+<div class="outline-text-3" id="text-1-3">
+<p>
+Here is an example of a shell script that uses each module to turn a pdf with a
+table into CSV output.
+</p>
+
+<p>
+Depending on your needs, you may not need all of these steps. If you already
+have an image of a table, you can jum straight to extracting the cells.
+</p>
+
+<p>
+Each piece is its own python module, so you can also simply import the pieces
+you need into your own python projects and use them as needed.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="orgd0301ec"><span style="color: #5B6268;">#</span><span style="color: #5B6268;">!/bin/</span><span style="color: #51afef;">sh</span>
+
+<span style="color: #dcaeea;">PDF</span>=$<span style="color: #da8548; font-weight: bold;">1</span>
+
+python -m table_ocr.pdf_to_images $<span style="color: #dcaeea;">PDF</span> | <span style="color: #ECBE7B;">grep</span> .png &gt; /tmp/pdf-images.txt
+<span style="color: #ECBE7B;">cat</span> /tmp/pdf-images.txt | xargs -I<span style="color: #51afef;">{}</span> python -m table_ocr.extract_tables <span style="color: #51afef;">{}</span>  | <span style="color: #ECBE7B;">grep</span> table &gt; /tmp/extracted-tables.txt
+<span style="color: #ECBE7B;">cat</span> /tmp/extracted-tables.txt | xargs -I<span style="color: #51afef;">{}</span> python -m table_ocr.extract_cells <span style="color: #51afef;">{}</span> | <span style="color: #ECBE7B;">grep</span> cells &gt; /tmp/extracted-cells.txt
+<span style="color: #ECBE7B;">cat</span> /tmp/extracted-cells.txt | xargs -I<span style="color: #51afef;">{}</span> python -m table_ocr.ocr_image <span style="color: #51afef;">{}</span> --psm <span style="color: #da8548; font-weight: bold;">7</span> -l table-ocr
+
+<span style="color: #51afef;">for</span> image<span style="color: #51afef;"> in</span> $<span style="color: #51afef;">(</span><span style="color: #ECBE7B;">cat</span> /tmp/extracted-tables.txt<span style="color: #51afef;">)</span>; <span style="color: #51afef;">do</span>
+    <span style="color: #dcaeea;">dir</span>=$<span style="color: #51afef;">(</span>dirname $<span style="color: #dcaeea;">image</span><span style="color: #51afef;">)</span>
+    python -m table_ocr.ocr_to_csv $<span style="color: #51afef;">(</span><span style="color: #ECBE7B;">find</span> $<span style="color: #dcaeea;">dir</span>/cells -name <span style="color: #98be65;">"*.txt"</span><span style="color: #51afef;">)</span>
+<span style="color: #51afef;">done</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org43c2c09" class="outline-3">
+<h3 id="org43c2c09"><span class="section-number-3">1.4</span> Possible improvements</h3>
+<div class="outline-text-3" id="text-1-4">
+<p>
+Detect text with the stroke-width-transform alogoritm. <a href="https://zablo.net/blog/post/stroke-width-transform-swt-python/index.html">https://zablo.net/blog/post/stroke-width-transform-swt-python/index.html</a>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org6412872" class="outline-2">
+<h2 id="org6412872"><span class="section-number-2">2</span> Preparing data</h2>
+<div class="outline-text-2" id="text-2">
 <p>
 Not all pdfs need to be sent through OCR to extract the text content. If you can
 click and drag to highlight text in the pdf, then the tools in this library
 probably aren&rsquo;t necessary.
 </p>
+</div>
 
+<div id="outline-container-orgdc51282" class="outline-3">
+<h3 id="orgdc51282"><span class="section-number-3">2.1</span> Converting PDFs to images</h3>
+<div class="outline-text-3" id="text-2-1">
 <p>
 This code calls out to <a href="https://manpages.debian.org/testing/poppler-utils/pdfimages.1.en.html">pdfimages</a> from <a href="https://poppler.freedesktop.org/">Poppler</a>.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python" id="org30ad29f"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">pdf_to_images</span>(pdf_filepath):
+<pre class="src src-python" id="org4cf64a2"><span style="color: #5B6268;"># </span><span style="color: #5B6268;">Wrapper around the Poppler command line utility "pdfimages" and helpers for</span>
+<span style="color: #5B6268;"># </span><span style="color: #5B6268;">finding the output files of that command.</span>
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">pdf_to_images</span>(pdf_filepath):
 <span style="background-color: #282c34;"> </span>   <span style="color: #83898d;">"""</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Turn a pdf into images</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   """</span>
@@ -302,12 +490,17 @@ This code calls out to <a href="https://manpages.debian.org/testing/poppler-util
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Uses the `pdfimages` utility from Poppler</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   (https://poppler.freedesktop.org/). Creates images out of each page. Images</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   are prefixed by their name sans extension and suffixed by their page number.</span>
+
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   This should work up to pdfs with 999 pages since find matching files in dir</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   uses 3 digits in its regex.</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   """</span>
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">directory</span>, <span style="color: #dcaeea;">filename</span> = os.path.split(pdf_filepath)
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">filename_sans_ext</span> = filename.split(<span style="color: #98be65;">".pdf"</span>)[<span style="color: #da8548; font-weight: bold;">0</span>]
 <span style="background-color: #282c34;"> </span>   subprocess.run([<span style="color: #98be65;">"pdfimages"</span>, <span style="color: #98be65;">"-png"</span>, pdf_filepath, filename.split(<span style="color: #98be65;">".pdf"</span>)[<span style="color: #da8548; font-weight: bold;">0</span>]])
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">image_filenames</span> = find_matching_files_in_dir(filename_sans_ext, directory)
-<span style="background-color: #282c34;"> </span>   logger.debug(<span style="color: #98be65;">"Converted {} into files:\n{}"</span>.<span style="color: #c678dd;">format</span>(pdf_filepath, <span style="color: #98be65;">"\n"</span>.join(image_filenames)))
+<span style="background-color: #282c34;"> </span>   logger.debug(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #98be65;">"Converted {} into files:\n{}"</span>.<span style="color: #c678dd;">format</span>(pdf_filepath, <span style="color: #98be65;">"\n"</span>.join(image_filenames))
+<span style="background-color: #282c34;"> </span>   )
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> image_filenames
 
 
@@ -315,7 +508,7 @@ This code calls out to <a href="https://manpages.debian.org/testing/poppler-util
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">files</span> = [
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   filename
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> filename <span style="color: #51afef;">in</span> os.listdir(directory)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> re.match(r<span style="color: #98be65;">"{}.*\.png"</span>.<span style="color: #c678dd;">format</span>(re.escape(file_prefix)), filename)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> re.match(r<span style="color: #98be65;">"{}-\d{{3}}.*\.png"</span>.<span style="color: #c678dd;">format</span>(re.escape(file_prefix)), filename)
 <span style="background-color: #282c34;"> </span>   ]
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> files
 </pre>
@@ -323,9 +516,9 @@ This code calls out to <a href="https://manpages.debian.org/testing/poppler-util
 </div>
 </div>
 
-<div id="outline-container-org1b42ded" class="outline-3">
-<h3 id="org1b42ded"><span class="section-number-3">1.2</span> Detecting image orientation and applying rotation.</h3>
-<div class="outline-text-3" id="text-1-2">
+<div id="outline-container-org938b07f" class="outline-3">
+<h3 id="org938b07f"><span class="section-number-3">2.2</span> Detecting image orientation and applying rotation.</h3>
+<div class="outline-text-3" id="text-2-2">
 <p>
 Tesseract can detect orientation and we can then use <a href="https://www.imagemagick.org/script/mogrify.php">ImageMagick&rsquo;s mogrify</a> to
 rotate the image.
@@ -346,8 +539,14 @@ Script: Latin
 Script confidence: 2.44
 </pre>
 
+<p>
+The following are some helpers to detect orientation of the images that Poppler
+extracted and, if the images are rotated or skewed, use ImageMagick&rsquo;s `mogrify`
+to correct the rotation. This makes OCR more straightforward.
+</p>
+
 <div class="org-src-container">
-<pre class="src src-python" id="org0a5f24f"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">preprocess_img</span>(filepath):
+<pre class="src src-python" id="org4c77451"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">preprocess_img</span>(filepath):
 <span style="background-color: #282c34;"> </span>   <span style="color: #83898d;">"""</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Processing that involves running shell executables,</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   like mogrify to rotate.</span>
@@ -376,9 +575,9 @@ Script confidence: 2.44
 </div>
 </div>
 
-<div id="outline-container-org7b5bda0" class="outline-2">
-<h2 id="org7b5bda0"><span class="section-number-2">2</span> Detecting tables</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-orga68497c" class="outline-2">
+<h2 id="orga68497c"><span class="section-number-2">3</span> Detecting tables</h2>
+<div class="outline-text-2" id="text-3">
 <p>
 This answer from opencv.org was heavily referenced while writing the code around
 table detection:
@@ -398,10 +597,35 @@ that makes things like shape detection more accurate.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">find_tables</span>(image):
-<span style="background-color: #282c34;"> </span>   &lt;&lt;blur&gt;&gt;
-<span style="background-color: #282c34;"> </span>   &lt;&lt;threshold&gt;&gt;
-<span style="background-color: #282c34;"> </span>   &lt;&lt;lines-of-table&gt;&gt;
+<pre class="src src-python" id="org55a4fc5"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">find_tables</span>(image):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLUR_KERNEL_SIZE</span> = (<span style="color: #da8548; font-weight: bold;">17</span>, <span style="color: #da8548; font-weight: bold;">17</span>)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">STD_DEV_X_DIRECTION</span> = <span style="color: #da8548; font-weight: bold;">0</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">STD_DEV_Y_DIRECTION</span> = <span style="color: #da8548; font-weight: bold;">0</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">blurred</span> = cv2.GaussianBlur(image, BLUR_KERNEL_SIZE, STD_DEV_X_DIRECTION, STD_DEV_Y_DIRECTION)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MAX_COLOR_VAL</span> = <span style="color: #da8548; font-weight: bold;">255</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLOCK_SIZE</span> = <span style="color: #da8548; font-weight: bold;">15</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">SUBTRACT_FROM_MEAN</span> = -<span style="color: #da8548; font-weight: bold;">2</span>
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">img_bin</span> = cv2.adaptiveThreshold(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   ~blurred,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   MAX_COLOR_VAL,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.ADAPTIVE_THRESH_MEAN_C,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.THRESH_BINARY,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   BLOCK_SIZE,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   SUBTRACT_FROM_MEAN,
+<span style="background-color: #282c34;"> </span>   )
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical</span> = <span style="color: #dcaeea;">horizontal</span> = img_bin.copy()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">SCALE</span> = <span style="color: #da8548; font-weight: bold;">5</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">image_width</span>, <span style="color: #dcaeea;">image_height</span> = horizontal.shape
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontal_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #c678dd;">int</span>(image_width / SCALE), <span style="color: #da8548; font-weight: bold;">1</span>))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontally_opened</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, horizontal_kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">1</span>, <span style="color: #c678dd;">int</span>(image_height / SCALE)))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertically_opened</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, vertical_kernel)
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontally_dilated</span> = cv2.dilate(horizontally_opened, cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">40</span>, <span style="color: #da8548; font-weight: bold;">1</span>)))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertically_dilated</span> = cv2.dilate(vertically_opened, cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">1</span>, <span style="color: #da8548; font-weight: bold;">60</span>)))
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">mask</span> = horizontally_dilated + vertically_dilated
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">contours</span>, <span style="color: #dcaeea;">heirarchy</span> = cv2.findContours(
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE,
 <span style="background-color: #282c34;"> </span>   )
@@ -423,32 +647,72 @@ that makes things like shape detection more accurate.
 </pre>
 </div>
 
+<p>
+Here is an the an example of the result of the <code>find_tables</code> function.
+</p>
+
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">import</span> cv2
-
-&lt;&lt;detect-table&gt;&gt;
 
 <span style="color: #dcaeea;">image_filename</span> = <span style="color: #98be65;">"resources/examples/example-page.png"</span>
 <span style="color: #dcaeea;">image</span> = cv2.imread(image_filename, cv2.IMREAD_GRAYSCALE)
 <span style="color: #dcaeea;">image</span> = find_tables(image)[<span style="color: #da8548; font-weight: bold;">0</span>]
 cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table.png"</span>, image)
-<span style="color: #98be65;">"resources/examples/example-table.png"</span>
 </pre>
 </div>
 
+<div class="org-center">
+
 <div class="figure">
-<p><img src="resources/examples/example-table.png" alt="example-table.png" width="500px" height="100%" />
+<p><img src="resources/examples/example-page.png" alt="example-page.png" width="250px" />
+</p>
+</div>
+
+<p>
+↓
+</p>
+
+
+<div class="figure">
+<p><img src="resources/examples/example-table.png" alt="example-table.png" width="250px" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org0201b8f" class="outline-2">
-<h2 id="org0201b8f"><span class="section-number-2">3</span> OCR tables</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-org019e27e" class="outline-3">
+<h3 id="org019e27e"><span class="section-number-3">3.1</span> Improving accuracy</h3>
+<div class="outline-text-3" id="text-3-1">
 <p>
-Find the bounding box of each cell in the table. Run tesseract on each cell.
-Print a comma seperated output.
+It&rsquo;s likely that some images will contain tables that aren&rsquo;t accurately
+recognized by the code above. The code will then need to be made more robust.
+But how will we know that changes to the code don&rsquo;t break the detection of
+tables that were previously detected?
+</p>
+
+<p>
+It might be good to add some type of test suite in the future that contains a
+spec that matches a pdf with the pages and pixel coordinates of the detected
+tables. The coordinates would need to have a range. Something like
+&ldquo;example-1.pdf, page-2.png, [450:470, 200:210, 800:820, 1270:1290]&rdquo; where the
+elements of the list are valid x, y, w, h ranges. So the test will pass if if
+the x, y, width and height are anywhere in that range.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orga12c6cf" class="outline-2">
+<h2 id="orga12c6cf"><span class="section-number-2">4</span> OCR tables</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+Tesseract does not perform well when run on images of tables. It performs best
+when given a single line of text with no extra noise.
+</p>
+
+<p>
+Therefore, our next task is to find and extract the bounding box of each cell in
+the table. Run tesseract on each cell. Print a comma seperated output.
 </p>
 
 <p>
@@ -456,9 +720,63 @@ We&rsquo;ll start with an image shown at the end of the previous section.
 </p>
 </div>
 
-<div id="outline-container-orged411a4" class="outline-4">
-<h4 id="orged411a4"><span class="section-number-4">3.0.1</span> Blur</h4>
-<div class="outline-text-4" id="text-3-0-1">
+<div id="outline-container-orgc895682" class="outline-3">
+<h3 id="orgc895682"><span class="section-number-3">4.1</span> Training Tesseract</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+It&rsquo;s a very good idea to train tesseract. Accuracy will improve tremendously.
+</p>
+
+<p>
+Clone the tesstrain repo at <a href="https://github.com/tesseract-ocr/tesstrain">https://github.com/tesseract-ocr/tesstrain</a>.
+</p>
+
+<p>
+Run the <a href="#orgd0301ec"><code>ocr_tables</code></a> script on a few pdfs to generate some training data. That
+script outputs pairs of <code>.png</code> and <code>.gt.txt</code> files that can be used by
+tesstrain.
+</p>
+
+<p>
+Make sure the <code>.gt.txt</code> files contain an accurate recognition of the
+corresponding image. Since the first few runs will be untrained, you&rsquo;ll probably
+need to fix up a few of the text files.
+</p>
+
+<p>
+Once they are accurate, move them to a new subdirectory of the tesstrain repo;
+<code>tesstrain/data/&lt;model-name&gt;-ground-truth/</code>.
+</p>
+
+<p>
+You&rsquo;ll also need to clone the <code>tessdata_best</code> repo,
+<a href="https://github.com/tesseract-ocr/tessdata_best">https://github.com/tesseract-ocr/tessdata_best</a> and the
+<a href="https://github.com/tesseract-ocr/langdata">https://github.com/tesseract-ocr/langdata</a> to use as the start of the
+training model.
+</p>
+
+<p>
+I&rsquo;m actually not sure how much the punctuation and numbers from <code>langdata</code> help.
+I didn&rsquo;t keep accurate records while playing with the training, I don&rsquo;t
+thoroughly understand it, and it&rsquo;s not profitable for me to explore it at the
+moment. It worked for my purposes and that has been good enough.
+</p>
+
+<pre class="example">
+make training MODEL_NAME=table-ocr START_MODEL=eng TESSDATA=~/src/tessdata_best PUNC_FILE=~/src/langdata/eng/eng.punc NUMBERS_FILE=~/src/langdata/eng/eng.numbers
+</pre>
+
+<p>
+Once the training is complete, there will be a new file
+<code>tesstrain/data/&lt;model-name&gt;.traineddata</code>. Copy that file to the directory
+Tesseract searches for models. On my machine, it was <code>/usr/local/share/tessdata/</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1ce3ded" class="outline-3">
+<h3 id="org1ce3ded"><span class="section-number-3">4.2</span> Blur</h3>
+<div class="outline-text-3" id="text-4-2">
 <p>
 Blurring helps to make noise less noisy so that the overall structure of an
 image is more detectable.
@@ -486,7 +804,6 @@ Cleanup can be accomplished with a blur followed by some thresholding.
 <pre class="src src-python"><span style="color: #dcaeea;">image</span> = ~cv2.imread(<span style="color: #98be65;">"resources/examples/example-table.png"</span>, cv2.IMREAD_GRAYSCALE)
 &lt;&lt;blur&gt;&gt;
 cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-blurred.png"</span>, blurred)
-<span style="color: #98be65;">"resources/examples/example-table-blurred.png"</span>
 </pre>
 </div>
 
@@ -498,9 +815,9 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-blur
 </div>
 </div>
 
-<div id="outline-container-org261362c" class="outline-4">
-<h4 id="org261362c"><span class="section-number-4">3.0.2</span> Threshold</h4>
-<div class="outline-text-4" id="text-3-0-2">
+<div id="outline-container-org5ebc5e9" class="outline-3">
+<h3 id="org5ebc5e9"><span class="section-number-3">4.3</span> Threshold</h3>
+<div class="outline-text-3" id="text-4-3">
 <p>
 We&rsquo;ve got a bunch of pixels that are gray. Thresholding will turn them all
 either black or white. Having all black or white pixels lets us do morphological
@@ -526,7 +843,6 @@ transformations like erosion and dilation.
 <div class="org-src-container">
 <pre class="src src-python">&lt;&lt;threshold&gt;&gt;
 cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-thresholded.png"</span>, img_bin)
-<span style="color: #98be65;">"resources/examples/example-table-thresholded.png"</span>
 </pre>
 </div>
 
@@ -538,16 +854,9 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-thre
 </div>
 </div>
 
-<div id="outline-container-org8538093" class="outline-4">
-<h4 id="org8538093"><span class="section-number-4">3.0.3</span> Finding the vertical and horizontal lines of the table</h4>
-<div class="outline-text-4" id="text-3-0-3">
-<p>
-Note: There&rsquo;s a wierd issue with the results of the example below when it&rsquo;s
-evaluated as part of an export or a full-buffer evaluation. If you evaluate the
-example by itself, it looks the way it&rsquo;s intended. If you evaluate it as part of
-an entire buffer evaluation, it&rsquo;s distorted.
-</p>
-
+<div id="outline-container-orga8b32e0" class="outline-3">
+<h3 id="orga8b32e0"><span class="section-number-3">4.4</span> Finding the vertical and horizontal lines of the table</h3>
+<div class="outline-text-3" id="text-4-4">
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #dcaeea;">vertical</span> = <span style="color: #dcaeea;">horizontal</span> = img_bin.copy()
 <span style="color: #dcaeea;">SCALE</span> = <span style="color: #da8548; font-weight: bold;">5</span>
@@ -564,24 +873,30 @@ an entire buffer evaluation, it&rsquo;s distorted.
 </pre>
 </div>
 
+<p>
+Note: There&rsquo;s a wierd issue with the results of the example below when it&rsquo;s
+evaluated as part of an export or a full-buffer evaluation. If you evaluate the
+example by itself, it looks the way it&rsquo;s intended. If you evaluate it as part of
+an entire buffer evaluation, like during export, it&rsquo;s distorted.
+</p>
+
 <div class="org-src-container">
 <pre class="src src-python">&lt;&lt;lines-of-table&gt;&gt;
 cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-lines.png"</span>, mask)
-<span style="color: #98be65;">"resources/examples/example-table-lines.png"</span>
 </pre>
 </div>
 
 
 <div class="figure">
-<p><img src="resources/examples/example-table-lines.png" alt="example-table-lines.png" width="500px" height="100%" />
+<p><img src="resources/examples/example-table-lines.png" alt="example-table-lines.png" width="500px" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org4fb8398" class="outline-4">
-<h4 id="org4fb8398"><span class="section-number-4">3.0.4</span> Finding the contours</h4>
-<div class="outline-text-4" id="text-3-0-4">
+<div id="outline-container-org1a881f5" class="outline-3">
+<h3 id="org1a881f5"><span class="section-number-3">4.5</span> Finding the contours</h3>
+<div class="outline-text-3" id="text-4-5">
 <p>
 Blurring and thresholding allow us to find the lines. Opening the lines allows
 us to find the contours.
@@ -629,7 +944,7 @@ above/below certain sizes.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #dcaeea;">contours</span>, <span style="color: #dcaeea;">heirarchy</span> = cv2.findContours(
+<pre class="src src-python" id="org61f4909"><span style="color: #dcaeea;">contours</span>, <span style="color: #dcaeea;">heirarchy</span> = cv2.findContours(
 <span style="background-color: #282c34;"> </span>   mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE,
 )
 
@@ -661,9 +976,9 @@ above/below certain sizes.
 </div>
 </div>
 
-<div id="outline-container-org85d4011" class="outline-4">
-<h4 id="org85d4011"><span class="section-number-4">3.0.5</span> Sorting the bounding rectangles</h4>
-<div class="outline-text-4" id="text-3-0-5">
+<div id="outline-container-org094eedd" class="outline-3">
+<h3 id="org094eedd"><span class="section-number-3">4.6</span> Sorting the bounding rectangles</h3>
+<div class="outline-text-3" id="text-4-6">
 <p>
 We want to process these from left-to-right, top-to-bottom.
 </p>
@@ -681,7 +996,7 @@ value of their center. We&rsquo;ll remove those rectangles from the list and rep
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">cell_in_same_row</span>(c1, c2):
+<pre class="src src-python" id="org233115e"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">cell_in_same_row</span>(c1, c2):
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">c1_center</span> = c1[<span style="color: #da8548; font-weight: bold;">1</span>] + c1[<span style="color: #da8548; font-weight: bold;">3</span>] - c1[<span style="color: #da8548; font-weight: bold;">3</span>] / <span style="color: #da8548; font-weight: bold;">2</span>
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">c2_bottom</span> = c2[<span style="color: #da8548; font-weight: bold;">1</span>] + c2[<span style="color: #da8548; font-weight: bold;">3</span>]
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">c2_top</span> = c2[<span style="color: #da8548; font-weight: bold;">1</span>]
@@ -745,7 +1060,6 @@ numbering them from right to left, top to bottom.
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #da8548; font-weight: bold;">2</span>,
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   )
 cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cells-numbered.png"</span>, image)
-<span style="color: #98be65;">"resources/examples/example-table-cells-numbered.png"</span>
 </pre>
 </div>
 
@@ -756,7 +1070,7 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell
 </div>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">extract_cell_images_from_table</span>(image):
+<pre class="src src-python" id="orga57424d"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">extract_cell_images_from_table</span>(image):
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLUR_KERNEL_SIZE</span> = (<span style="color: #da8548; font-weight: bold;">17</span>, <span style="color: #da8548; font-weight: bold;">17</span>)
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">STD_DEV_X_DIRECTION</span> = <span style="color: #da8548; font-weight: bold;">0</span>
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">STD_DEV_Y_DIRECTION</span> = <span style="color: #da8548; font-weight: bold;">0</span>
@@ -859,7 +1173,6 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell
 <span style="color: #dcaeea;">image</span> = cv2.imread(<span style="color: #98be65;">"resources/examples/example-table.png"</span>, cv2.IMREAD_GRAYSCALE)
 <span style="color: #dcaeea;">cell_images_rows</span> = extract_cell_images_from_table(image)
 cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell-1-1.png"</span>, cell_images_rows[<span style="color: #da8548; font-weight: bold;">1</span>][<span style="color: #da8548; font-weight: bold;">1</span>])
-<span style="color: #98be65;">"resources/examples/example-table-cell-1-1.png"</span>
 </pre>
 </div>
 
@@ -871,9 +1184,9 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell
 </div>
 </div>
 
-<div id="outline-container-orgf80e3ed" class="outline-4">
-<h4 id="orgf80e3ed"><span class="section-number-4">3.0.6</span> Cropping each cell to the text</h4>
-<div class="outline-text-4" id="text-3-0-6">
+<div id="outline-container-org87d2780" class="outline-3">
+<h3 id="org87d2780"><span class="section-number-3">4.7</span> Cropping each cell to the text</h3>
+<div class="outline-text-3" id="text-4-7">
 <p>
 OCR with Tesseract works best when there is about 10 pixels of white border
 around the text.
@@ -888,20 +1201,54 @@ that noise with a simple open morph.
 
 <p>
 Once the stray border pixels have been removed, we can expand our border using
-<code>openMakeBorder</code>.
+<code>copyMakeBorder</code>.
 </p>
 
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">crop_to_text</span>(image):
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">kernel</span> = cv2.getStructuringElement(cv2.MORPH_CROSS, (<span style="color: #da8548; font-weight: bold;">4</span>, <span style="color: #da8548; font-weight: bold;">4</span>))
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">opened</span> = cv2.morphologyEx(~image, cv2.MORPH_OPEN, kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MAX_COLOR_VAL</span> = <span style="color: #da8548; font-weight: bold;">255</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLOCK_SIZE</span> = <span style="color: #da8548; font-weight: bold;">15</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">SUBTRACT_FROM_MEAN</span> = -<span style="color: #da8548; font-weight: bold;">2</span>
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">img_bin</span> = cv2.adaptiveThreshold(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   ~image,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   MAX_COLOR_VAL,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.ADAPTIVE_THRESH_MEAN_C,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.THRESH_BINARY,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   BLOCK_SIZE,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   SUBTRACT_FROM_MEAN,
+<span style="background-color: #282c34;"> </span>   )
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">img_h</span>, <span style="color: #dcaeea;">img_w</span> = image.shape
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontal_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #c678dd;">int</span>(img_w * <span style="color: #da8548; font-weight: bold;">0.5</span>), <span style="color: #da8548; font-weight: bold;">1</span>))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">1</span>, <span style="color: #c678dd;">int</span>(img_h * <span style="color: #da8548; font-weight: bold;">0.7</span>)))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontal_lines</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, horizontal_kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical_lines</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, vertical_kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">both</span> = horizontal_lines + vertical_lines
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cleaned</span> = img_bin - both
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Get rid of little noise.</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">kernel</span> = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (<span style="color: #da8548; font-weight: bold;">3</span>, <span style="color: #da8548; font-weight: bold;">3</span>))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">opened</span> = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">opened</span> = cv2.dilate(opened, kernel)
 
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">contours</span>, <span style="color: #dcaeea;">hierarchy</span> = cv2.findContours(opened, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bounding_rects</span> = [cv2.boundingRect(c) <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> contours]
-<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">The largest contour is certainly the text that we're looking for.</span>
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">largest_rect</span> = <span style="color: #c678dd;">max</span>(bounding_rects, key=<span style="color: #51afef;">lambda</span> r: r[<span style="color: #da8548; font-weight: bold;">2</span>] * r[<span style="color: #da8548; font-weight: bold;">3</span>])
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">x</span>, <span style="color: #dcaeea;">y</span>, <span style="color: #dcaeea;">w</span>, <span style="color: #dcaeea;">h</span> = largest_rect
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = image[y:y+h, x:x+w]
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">NUM_PX_COMMA</span> = <span style="color: #da8548; font-weight: bold;">6</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MIN_CHAR_AREA</span> = <span style="color: #da8548; font-weight: bold;">5</span> * <span style="color: #da8548; font-weight: bold;">9</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">char_sized_bounding_rects</span> = [(x, y, w, h) <span style="color: #51afef;">for</span> x, y, w, h <span style="color: #51afef;">in</span> bounding_rects <span style="color: #51afef;">if</span> w * h &gt; MIN_CHAR_AREA]
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> char_sized_bounding_rects:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">minx</span>, <span style="color: #dcaeea;">miny</span>, <span style="color: #dcaeea;">maxx</span>, <span style="color: #dcaeea;">maxy</span> = math.inf, math.inf, <span style="color: #da8548; font-weight: bold;">0</span>, <span style="color: #da8548; font-weight: bold;">0</span>
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> x, y, w, h <span style="color: #51afef;">in</span> char_sized_bounding_rects:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">minx</span> = <span style="color: #c678dd;">min</span>(minx, x)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">miny</span> = <span style="color: #c678dd;">min</span>(miny, y)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">maxx</span> = <span style="color: #c678dd;">max</span>(maxx, x + w)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">maxy</span> = <span style="color: #c678dd;">max</span>(maxy, y + h)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">x</span>, <span style="color: #dcaeea;">y</span>, <span style="color: #dcaeea;">w</span>, <span style="color: #dcaeea;">h</span> = minx, miny, maxx - minx, maxy - miny
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = image[y:<span style="color: #c678dd;">min</span>(img_h, y+h+NUM_PX_COMMA), x:<span style="color: #c678dd;">min</span>(img_w, x+w)]
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">else</span>:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">If we morphed out all of the text, assume an empty image.</span>
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = MAX_COLOR_VAL * np.ones(shape=(<span style="color: #da8548; font-weight: bold;">20</span>, <span style="color: #da8548; font-weight: bold;">100</span>), dtype=np.uint8)
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bordered</span> = cv2.copyMakeBorder(cropped, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, cv2.BORDER_CONSTANT, <span style="color: #a9a1e1;">None</span>, <span style="color: #da8548; font-weight: bold;">255</span>)
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> bordered
 </pre>
@@ -909,11 +1256,11 @@ Once the stray border pixels have been removed, we can expand our border using
 
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">import</span> cv2
+<span style="color: #51afef;">import</span> numpy <span style="color: #51afef;">as</span> np
 &lt;&lt;crop-to-text&gt;&gt;
 <span style="color: #dcaeea;">image</span> = cv2.imread(<span style="color: #98be65;">"resources/examples/example-table-cell-1-1.png"</span>, cv2.IMREAD_GRAYSCALE)
 <span style="color: #dcaeea;">image</span> = crop_to_text(image)
 cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell-1-1-cropped.png"</span>, image)
-<span style="color: #98be65;">"resources/examples/example-table-cell-1-1-cropped.png"</span>
 </pre>
 </div>
 
@@ -925,9 +1272,9 @@ cv2.imwrite(<span style="color: #98be65;">"resources/examples/example-table-cell
 </div>
 </div>
 
-<div id="outline-container-org87267b7" class="outline-4">
-<h4 id="org87267b7"><span class="section-number-4">3.0.7</span> OCR each cell</h4>
-<div class="outline-text-4" id="text-3-0-7">
+<div id="outline-container-org8de0931" class="outline-3">
+<h3 id="org8de0931"><span class="section-number-3">4.8</span> OCR each cell</h3>
+<div class="outline-text-3" id="text-4-8">
 <p>
 If we cleaned up the images well enough, we might get some accurate OCR!
 </p>
@@ -948,23 +1295,9 @@ period into a comma, then you might need to do some custom Tesseract training.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">crop_to_text</span>(image):
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">kernel</span> = cv2.getStructuringElement(cv2.MORPH_CROSS, (<span style="color: #da8548; font-weight: bold;">4</span>, <span style="color: #da8548; font-weight: bold;">4</span>))
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">opened</span> = cv2.morphologyEx(~image, cv2.MORPH_OPEN, kernel)
-
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">contours</span>, <span style="color: #dcaeea;">hierarchy</span> = cv2.findContours(opened, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bounding_rects</span> = [cv2.boundingRect(c) <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> contours]
-<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">The largest contour is certainly the text that we're looking for.</span>
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">largest_rect</span> = <span style="color: #c678dd;">max</span>(bounding_rects, key=<span style="color: #51afef;">lambda</span> r: r[<span style="color: #da8548; font-weight: bold;">2</span>] * r[<span style="color: #da8548; font-weight: bold;">3</span>])
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">x</span>, <span style="color: #dcaeea;">y</span>, <span style="color: #dcaeea;">w</span>, <span style="color: #dcaeea;">h</span> = largest_rect
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = image[y:y+h, x:x+w]
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bordered</span> = cv2.copyMakeBorder(cropped, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, cv2.BORDER_CONSTANT, <span style="color: #a9a1e1;">None</span>, <span style="color: #da8548; font-weight: bold;">255</span>)
-<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> bordered
-
-<span style="color: #51afef;">def</span> <span style="color: #c678dd;">ocr_image</span>(image, config):
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = crop_to_text(image)
+<pre class="src src-python"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">ocr_image</span>(image, config):
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> pytesseract.image_to_string(
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   ~cropped,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   image,
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   config=config
 <span style="background-color: #282c34;"> </span>   )
 </pre>
@@ -973,8 +1306,11 @@ period into a comma, then you might need to do some custom Tesseract training.
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">import</span> pytesseract
 <span style="color: #51afef;">import</span> cv2
+<span style="color: #51afef;">import</span> numpy <span style="color: #51afef;">as</span> np
 <span style="color: #dcaeea;">image</span> = cv2.imread(<span style="color: #98be65;">"resources/examples/example-table-cell-1-1.png"</span>, cv2.IMREAD_GRAYSCALE)
+&lt;&lt;crop-to-text&gt;&gt;
 &lt;&lt;ocr-image&gt;&gt;
+<span style="color: #dcaeea;">image</span> = crop_to_text(image)
 ocr_image(image, <span style="color: #98be65;">"--psm 7"</span>)
 </pre>
 </div>
@@ -986,38 +1322,44 @@ ocr_image(image, <span style="color: #98be65;">"--psm 7"</span>)
 </div>
 </div>
 
-<div id="outline-container-org29c3621" class="outline-2">
-<h2 id="org29c3621"><span class="section-number-2">4</span> Files</h2>
-<div class="outline-text-2" id="text-4">
+<div id="outline-container-orgf6e8639" class="outline-2">
+<h2 id="orgf6e8639"><span class="section-number-2">5</span> Files</h2>
+<div class="outline-text-2" id="text-5">
 <div class="org-src-container">
 <pre class="src src-python">
 </pre>
 </div>
 </div>
 
-<div id="outline-container-org4ab36c6" class="outline-3">
-<h3 id="org4ab36c6"><span class="section-number-3">4.1</span> setup.py</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-orgba6f775" class="outline-3">
+<h3 id="orgba6f775"><span class="section-number-3">5.1</span> setup.py</h3>
+<div class="outline-text-3" id="text-5-1">
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">import</span> setuptools
 
-<span style="color: #51afef;">with</span> <span style="color: #c678dd;">open</span>(<span style="color: #98be65;">"README.md"</span>, <span style="color: #98be65;">"r"</span>) <span style="color: #51afef;">as</span> fh:
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">long_description</span> = fh.read()
+<span style="color: #dcaeea;">long_description</span> = <span style="color: #98be65;">"""</span>
+<span style="color: #98be65;">Utilities for turning images of tables into CSV data. Uses Tesseract and OpenCV.</span>
 
+<span style="color: #98be65;">Requires binaries for tesseract and pdfimages (from Poppler).</span>
+<span style="color: #98be65;">"""</span>
 setuptools.setup(
-<span style="background-color: #282c34;"> </span>   name=<span style="color: #98be65;">"example-pkg-YOUR-USERNAME-HERE"</span>, <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Replace with your own username</span>
+<span style="background-color: #282c34;"> </span>   name=<span style="color: #98be65;">"table_ocr"</span>,
 <span style="background-color: #282c34;"> </span>   version=<span style="color: #98be65;">"0.0.1"</span>,
-<span style="background-color: #282c34;"> </span>   author=<span style="color: #98be65;">"Example Author"</span>,
-<span style="background-color: #282c34;"> </span>   author_email=<span style="color: #98be65;">"author@example.com"</span>,
-<span style="background-color: #282c34;"> </span>   description=<span style="color: #98be65;">"A small example package"</span>,
+<span style="background-color: #282c34;"> </span>   author=<span style="color: #98be65;">"Eric Ihli"</span>,
+<span style="background-color: #282c34;"> </span>   author_email=<span style="color: #98be65;">"eihli@owoga.com"</span>,
+<span style="background-color: #282c34;"> </span>   description=<span style="color: #98be65;">"Turn images of tables into CSV data."</span>,
 <span style="background-color: #282c34;"> </span>   long_description=long_description,
-<span style="background-color: #282c34;"> </span>   long_description_content_type=<span style="color: #98be65;">"text/markdown"</span>,
-<span style="background-color: #282c34;"> </span>   url=<span style="color: #98be65;">"https://github.com/pypa/sampleproject"</span>,
+<span style="background-color: #282c34;"> </span>   long_description_content_type=<span style="color: #98be65;">"text/plain"</span>,
+<span style="background-color: #282c34;"> </span>   url=<span style="color: #98be65;">"https://github.com/eihli/image-table-ocr"</span>,
 <span style="background-color: #282c34;"> </span>   packages=setuptools.find_packages(),
 <span style="background-color: #282c34;"> </span>   classifiers=[
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #98be65;">"Programming Language :: Python :: 3"</span>,
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #98be65;">"License :: OSI Approved :: MIT License"</span>,
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #98be65;">"Operating System :: OS Independent"</span>,
+<span style="background-color: #282c34;"> </span>   ],
+<span style="background-color: #282c34;"> </span>   install_requires=[
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #98be65;">"pytesseract~=0.3"</span>,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #98be65;">"opencv-python~=4.2"</span>,
 <span style="background-color: #282c34;"> </span>   ],
 <span style="background-color: #282c34;"> </span>   python_requires=<span style="color: #98be65;">'&gt;=3.6'</span>,
 )
@@ -1026,23 +1368,16 @@ setuptools.setup(
 </div>
 </div>
 
-<div id="outline-container-org47315fb" class="outline-3">
-<h3 id="org47315fb"><span class="section-number-3">4.2</span> table_image_ocr</h3>
-<div class="outline-text-3" id="text-4-2">
+<div id="outline-container-org6a407ab" class="outline-3">
+<h3 id="org6a407ab"><span class="section-number-3">5.2</span> table_ocr</h3>
+<div class="outline-text-3" id="text-5-2">
 </div>
-<div id="outline-container-org066bf49" class="outline-4">
-<h4 id="org066bf49"><span class="section-number-4">4.2.1</span> table_image_ocr/__init__.py</h4>
-<div class="outline-text-4" id="text-4-2-1">
-<div class="org-src-container">
-<pre class="src src-python">
-</pre>
+<div id="outline-container-org465ea6b" class="outline-4">
+<h4 id="org465ea6b"><span class="section-number-4">5.2.1</span> table_ocr/__init__.py</h4>
 </div>
-</div>
-</div>
-
-<div id="outline-container-org95b6056" class="outline-4">
-<h4 id="org95b6056"><span class="section-number-4">4.2.2</span> table_image_ocr/util.py</h4>
-<div class="outline-text-4" id="text-4-2-2">
+<div id="outline-container-org7a49723" class="outline-4">
+<h4 id="org7a49723"><span class="section-number-4">5.2.2</span> table_ocr/util.py</h4>
+<div class="outline-text-4" id="text-5-2-2">
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">from</span> contextlib <span style="color: #51afef;">import</span> contextmanager
 <span style="color: #51afef;">import</span> functools
@@ -1050,16 +1385,16 @@ setuptools.setup(
 <span style="color: #51afef;">import</span> os
 <span style="color: #51afef;">import</span> tempfile
 
-<span style="color: #51afef;">from</span> bs4 <span style="color: #51afef;">import</span> BeautifulSoup <span style="color: #51afef;">as</span> bs
-<span style="color: #51afef;">import</span> requests
-
-
-
-
-<span style="color: #dcaeea;">logger</span> = get_logger()
-
-
-
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">get_logger</span>(name):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">logger</span> = logging.getLogger(name)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">lvl</span> = os.environ.get(<span style="color: #98be65;">"PY_LOG_LVL"</span>, <span style="color: #98be65;">"info"</span>).upper()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">handler</span> = logging.StreamHandler()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">formatter</span> = logging.Formatter(logging.BASIC_FORMAT)
+<span style="background-color: #282c34;"> </span>   handler.setFormatter(formatter)
+<span style="background-color: #282c34;"> </span>   logger.addHandler(handler)
+<span style="background-color: #282c34;"> </span>   handler.setLevel(lvl)
+<span style="background-color: #282c34;"> </span>   logger.setLevel(lvl)
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> logger
 
 <span style="color: #ECBE7B;">@contextmanager</span>
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">working_dir</span>(directory):
@@ -1071,13 +1406,6 @@ setuptools.setup(
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   os.chdir(original_working_dir)
 
 
-<span style="color: #51afef;">def</span> <span style="color: #c678dd;">download</span>(url, filepath):
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">response</span> = request_get(url)
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">data</span> = response.content
-<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">with</span> <span style="color: #c678dd;">open</span>(filepath, <span style="color: #98be65;">"wb"</span>) <span style="color: #51afef;">as</span> f:
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   f.write(data)
-
-
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">make_tempdir</span>(identifier):
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> tempfile.mkdtemp(prefix=<span style="color: #98be65;">"{}_"</span>.<span style="color: #c678dd;">format</span>(identifier))
 </pre>
@@ -1085,57 +1413,24 @@ setuptools.setup(
 </div>
 </div>
 
-<div id="outline-container-org6511b91" class="outline-4">
-<h4 id="org6511b91"><span class="section-number-4">4.2.3</span> table_image_ocr/prepare_pdfs.py</h4>
-<div class="outline-text-4" id="text-4-2-3">
-<p>
-Takes a variable number of pdf files and creates images out of each page of the
-file using <code>pdfimages</code> from Poppler. Images are created in the same directory
-that contains the pdf.
-</p>
-
-<p>
-Prints each pdf followed by the images extracted from that pdf followed by a
-blank line.
-</p>
-
-<div class="org-src-container">
-<pre class="src src-shell">python -m pdf.prepare_pdfs /tmp/file1/file1.pdf /tmp/file2/file2.pdf ...
-</pre>
+<div id="outline-container-orgd6e9341" class="outline-4">
+<h4 id="orgd6e9341"><span class="section-number-4">5.2.3</span> table_ocr/pdf_to_images/</h4>
+<div class="outline-text-4" id="text-5-2-3">
 </div>
-
-
+<div id="outline-container-org8a31fd7" class="outline-5">
+<h5 id="org8a31fd7"><span class="section-number-5">5.2.3.1</span> table_ocr/pdf_to_images/__init__.py</h5>
+<div class="outline-text-5" id="text-5-2-3-1">
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #51afef;">import</span> argparse
-<span style="color: #51afef;">import</span> logging
-<span style="color: #51afef;">import</span> os
+<pre class="src src-python" id="org1a36eec"><span style="color: #51afef;">import</span> os
 <span style="color: #51afef;">import</span> re
 <span style="color: #51afef;">import</span> subprocess
-<span style="color: #51afef;">import</span> sys
 
-<span style="color: #51afef;">from</span> pdf.util <span style="color: #51afef;">import</span> request_get, working_dir, download, make_tempdir
+<span style="color: #51afef;">from</span> table_ocr.util <span style="color: #51afef;">import</span> get_logger, working_dir
 
+<span style="color: #dcaeea;">logger</span> = get_logger(<span style="color: #c678dd;">__name__</span>)
 
-
-
-<span style="color: #dcaeea;">logger</span> = get_logger()
-
-<span style="color: #dcaeea;">parser</span> = argparse.ArgumentParser()
-parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span style="color: #98be65;">"+"</span>)
-
-<span style="color: #51afef;">def</span> <span style="color: #c678dd;">main</span>(files):
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">pdf_images</span> = []
-<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> f <span style="color: #51afef;">in</span> files:
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   pdf_images.append((f, pdf_to_images(f)))
-
-<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> pdf, images <span style="color: #51afef;">in</span> pdf_images:
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> image <span style="color: #51afef;">in</span> images:
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   preprocess_img(image)
-
-<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> pdf, images <span style="color: #51afef;">in</span> pdf_images:
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(<span style="color: #98be65;">"{}\n{}\n"</span>.<span style="color: #c678dd;">format</span>(pdf, <span style="color: #98be65;">"\n"</span>.join(images)))
-
-
+<span style="color: #5B6268;"># </span><span style="color: #5B6268;">Wrapper around the Poppler command line utility "pdfimages" and helpers for</span>
+<span style="color: #5B6268;"># </span><span style="color: #5B6268;">finding the output files of that command.</span>
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">pdf_to_images</span>(pdf_filepath):
 <span style="background-color: #282c34;"> </span>   <span style="color: #83898d;">"""</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Turn a pdf into images</span>
@@ -1154,12 +1449,17 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Uses the `pdfimages` utility from Poppler</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   (https://poppler.freedesktop.org/). Creates images out of each page. Images</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   are prefixed by their name sans extension and suffixed by their page number.</span>
+
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   This should work up to pdfs with 999 pages since find matching files in dir</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   uses 3 digits in its regex.</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   """</span>
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">directory</span>, <span style="color: #dcaeea;">filename</span> = os.path.split(pdf_filepath)
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">filename_sans_ext</span> = filename.split(<span style="color: #98be65;">".pdf"</span>)[<span style="color: #da8548; font-weight: bold;">0</span>]
 <span style="background-color: #282c34;"> </span>   subprocess.run([<span style="color: #98be65;">"pdfimages"</span>, <span style="color: #98be65;">"-png"</span>, pdf_filepath, filename.split(<span style="color: #98be65;">".pdf"</span>)[<span style="color: #da8548; font-weight: bold;">0</span>]])
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">image_filenames</span> = find_matching_files_in_dir(filename_sans_ext, directory)
-<span style="background-color: #282c34;"> </span>   logger.debug(<span style="color: #98be65;">"Converted {} into files:\n{}"</span>.<span style="color: #c678dd;">format</span>(pdf_filepath, <span style="color: #98be65;">"\n"</span>.join(image_filenames)))
+<span style="background-color: #282c34;"> </span>   logger.debug(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #98be65;">"Converted {} into files:\n{}"</span>.<span style="color: #c678dd;">format</span>(pdf_filepath, <span style="color: #98be65;">"\n"</span>.join(image_filenames))
+<span style="background-color: #282c34;"> </span>   )
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> image_filenames
 
 
@@ -1167,9 +1467,10 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">files</span> = [
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   filename
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> filename <span style="color: #51afef;">in</span> os.listdir(directory)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> re.match(r<span style="color: #98be65;">"{}.*\.png"</span>.<span style="color: #c678dd;">format</span>(re.escape(file_prefix)), filename)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> re.match(r<span style="color: #98be65;">"{}-\d{{3}}.*\.png"</span>.<span style="color: #c678dd;">format</span>(re.escape(file_prefix)), filename)
 <span style="background-color: #282c34;"> </span>   ]
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> files
+
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">preprocess_img</span>(filepath):
 <span style="background-color: #282c34;"> </span>   <span style="color: #83898d;">"""</span>
 <span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Processing that involves running shell executables,</span>
@@ -1193,6 +1494,55 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">mogrify</span>(image_filepath, rotate):
 <span style="background-color: #282c34;"> </span>   subprocess.run([<span style="color: #98be65;">"mogrify"</span>, <span style="color: #98be65;">"-rotate"</span>, rotate, image_filepath])
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org1e4f0c6" class="outline-5">
+<h5 id="org1e4f0c6"><span class="section-number-5">5.2.3.2</span> table_ocr/pdf_to_images/__main__.py</h5>
+<div class="outline-text-5" id="text-5-2-3-2">
+<p>
+Takes a variable number of pdf files and creates images out of each page of the
+file using <code>pdfimages</code> from Poppler. Images are created in the same directory
+that contains the pdf.
+</p>
+
+<p>
+Prints each pdf followed by the images extracted from that pdf followed by a
+blank line.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">python -m table_ocr.prepare_pdfs /tmp/file1/file1.pdf /tmp/file2/file2.pdf ...
+</pre>
+</div>
+
+
+<div class="org-src-container">
+<pre class="src src-python" id="org2dead1b"><span style="color: #51afef;">import</span> argparse
+
+<span style="color: #51afef;">from</span> table_ocr.util <span style="color: #51afef;">import</span> working_dir, make_tempdir, get_logger
+<span style="color: #51afef;">from</span> table_ocr.pdf_to_images <span style="color: #51afef;">import</span> pdf_to_images, preprocess_img
+
+<span style="color: #dcaeea;">logger</span> = get_logger(<span style="color: #c678dd;">__name__</span>)
+
+<span style="color: #dcaeea;">parser</span> = argparse.ArgumentParser()
+parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span style="color: #98be65;">"+"</span>)
+
+
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">main</span>(files):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">pdf_images</span> = []
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> f <span style="color: #51afef;">in</span> files:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   pdf_images.append((f, pdf_to_images(f)))
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> pdf, images <span style="color: #51afef;">in</span> pdf_images:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> image <span style="color: #51afef;">in</span> images:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   preprocess_img(image)
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> pdf, images <span style="color: #51afef;">in</span> pdf_images:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(<span style="color: #98be65;">"{}\n{}\n"</span>.<span style="color: #c678dd;">format</span>(pdf, <span style="color: #98be65;">"\n"</span>.join(images)))
+
 
 <span style="color: #51afef;">if</span> <span style="color: #c678dd;">__name__</span> == <span style="color: #98be65;">"__main__"</span>:
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">args</span> = parser.parse_args()
@@ -1201,43 +1551,17 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 </div>
 </div>
 </div>
-
-<div id="outline-container-orgaa4f936" class="outline-4">
-<h4 id="orgaa4f936"><span class="section-number-4">4.2.4</span> table_image_ocr/extract_tables.py</h4>
-<div class="outline-text-4" id="text-4-2-4">
-<div class="org-src-container">
-<pre class="src src-shell">. ~/.virtualenvs/lotto_odds/bin/activate
-python -m pdf.extract_tables <span style="color: #98be65;">"resources/examples/example-page.png"</span>
-</pre>
 </div>
 
+<div id="outline-container-orgb1142c2" class="outline-4">
+<h4 id="orgb1142c2"><span class="section-number-4">5.2.4</span> table_ocr/extract_tables/</h4>
+<div class="outline-text-4" id="text-5-2-4">
+</div>
+<div id="outline-container-org4d226b5" class="outline-5">
+<h5 id="org4d226b5"><span class="section-number-5">5.2.4.1</span> table_ocr/extract_tables/__init__.py</h5>
+<div class="outline-text-5" id="text-5-2-4-1">
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #51afef;">import</span> argparse
-<span style="color: #51afef;">import</span> os
-
-<span style="color: #51afef;">import</span> cv2
-
-<span style="color: #dcaeea;">parser</span> = argparse.ArgumentParser()
-parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span style="color: #98be65;">"+"</span>)
-
-
-<span style="color: #51afef;">def</span> <span style="color: #c678dd;">main</span>(files):
-<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">results</span> = []
-<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> f <span style="color: #51afef;">in</span> files:
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">directory</span>, <span style="color: #dcaeea;">filename</span> = os.path.split(f)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">image</span> = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">tables</span> = find_tables(image)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">files</span> = []
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> i, table <span style="color: #51afef;">in</span> <span style="color: #c678dd;">enumerate</span>(tables):
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">filename_sans_extension</span> = os.path.splitext(filename)[<span style="color: #da8548; font-weight: bold;">0</span>]
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">table_filename</span> = <span style="color: #98be65;">"{}-table-{:03d}.png"</span>.<span style="color: #c678dd;">format</span>(filename_sans_extension, i)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">table_filepath</span> = os.path.join(directory, table_filename)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   files.append(table_filepath)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.imwrite(table_filepath, table)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   results.append((f, files))
-
-<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> image_filename, table_filenames <span style="color: #51afef;">in</span> results:
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(<span style="color: #98be65;">"{}\n{}\n"</span>.<span style="color: #c678dd;">format</span>(image_filename, <span style="color: #98be65;">"\n"</span>.join(table_filenames)))
+<pre class="src src-python" id="org578a61a"><span style="color: #51afef;">import</span> cv2
 
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">find_tables</span>(image):
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLUR_KERNEL_SIZE</span> = (<span style="color: #da8548; font-weight: bold;">17</span>, <span style="color: #da8548; font-weight: bold;">17</span>)
@@ -1286,6 +1610,78 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 <span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Leaving that step as a future </span><span style="color: #ECBE7B; font-weight: bold;">TODO</span><span style="color: #5B6268;"> if it is ever necessary.</span>
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">images</span> = [image[y:y+h, x:x+w] <span style="color: #51afef;">for</span> x, y, w, h <span style="color: #51afef;">in</span> bounding_rects]
 <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> images
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org28b104f" class="outline-5">
+<h5 id="org28b104f"><span class="section-number-5">5.2.4.2</span> table_ocr/extract_tables/__main__.py</h5>
+<div class="outline-text-5" id="text-5-2-4-2">
+<p>
+Takes 1 or more image paths as arguments.
+</p>
+
+<p>
+Images are opened and read with OpenCV.
+</p>
+
+<p>
+Tables are detected and extracted to a new subdirectory of the given image. The
+subdirectory will be the filename sans the extension. The tables inside that
+directory will be named <code>table-000.png</code>.
+</p>
+
+<p>
+If you want to do something with the output, like pipe the paths of the
+extracted tables into some other utility, here is a description of the output.
+</p>
+
+<p>
+For each image path given as an agument, outputs:
+</p>
+
+<ol class="org-ol">
+<li>The given image path</li>
+<li>Paths of extracted tables; seperated by newlines</li>
+<li>Empty newline</li>
+</ol>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org31f60b7"><span style="color: #51afef;">import</span> argparse
+<span style="color: #51afef;">import</span> os
+
+<span style="color: #51afef;">import</span> cv2
+
+<span style="color: #51afef;">from</span> table_ocr.extract_tables <span style="color: #51afef;">import</span> find_tables
+
+<span style="color: #dcaeea;">parser</span> = argparse.ArgumentParser()
+parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span style="color: #98be65;">"+"</span>)
+
+
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">main</span>(files):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">results</span> = []
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> f <span style="color: #51afef;">in</span> files:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">directory</span>, <span style="color: #dcaeea;">filename</span> = os.path.split(f)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">image</span> = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">tables</span> = find_tables(image)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">files</span> = []
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">filename_sans_extension</span> = os.path.splitext(filename)[<span style="color: #da8548; font-weight: bold;">0</span>]
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> tables:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   os.makedirs(os.path.join(directory, filename_sans_extension), exist_ok=<span style="color: #a9a1e1;">True</span>)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> i, table <span style="color: #51afef;">in</span> <span style="color: #c678dd;">enumerate</span>(tables):
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">table_filename</span> = <span style="color: #98be65;">"table-{:03d}.png"</span>.<span style="color: #c678dd;">format</span>(i)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">table_filepath</span> = os.path.join(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   directory, filename_sans_extension, table_filename
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   )
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   files.append(table_filepath)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.imwrite(table_filepath, table)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> tables:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   results.append((f, files))
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> image_filename, table_filenames <span style="color: #51afef;">in</span> results:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(<span style="color: #98be65;">"\n"</span>.join(table_filenames))
+
 
 <span style="color: #51afef;">if</span> <span style="color: #c678dd;">__name__</span> == <span style="color: #98be65;">"__main__"</span>:
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">args</span> = parser.parse_args()
@@ -1295,22 +1691,148 @@ parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span st
 </div>
 </div>
 </div>
+</div>
 
-<div id="outline-container-org67a9781" class="outline-4">
-<h4 id="org67a9781"><span class="section-number-4">4.2.5</span> table_image_ocr/extract_cells_from_table.py</h4>
-<div class="outline-text-4" id="text-4-2-5">
+<div id="outline-container-org0d21747" class="outline-4">
+<h4 id="org0d21747"><span class="section-number-4">5.2.5</span> table_ocr/extract_cells/</h4>
+<div class="outline-text-4" id="text-5-2-5">
+</div>
+<div id="outline-container-org8556f38" class="outline-5">
+<h5 id="org8556f38"><span class="section-number-5">5.2.5.1</span> table_ocr/extract_cells/__init__.py</h5>
+<div class="outline-text-5" id="text-5-2-5-1">
 <div class="org-src-container">
-<pre class="src src-shell">. ~/.virtualenvs/lotto_odds/bin/activate
-python -m pdf.extract_cells_from_table <span style="color: #98be65;">"resources/examples/example-table.png"</span>
+<pre class="src src-python"><span style="color: #51afef;">import</span> cv2
+
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">extract_cell_images_from_table</span>(image):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLUR_KERNEL_SIZE</span> = (<span style="color: #da8548; font-weight: bold;">17</span>, <span style="color: #da8548; font-weight: bold;">17</span>)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">STD_DEV_X_DIRECTION</span> = <span style="color: #da8548; font-weight: bold;">0</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">STD_DEV_Y_DIRECTION</span> = <span style="color: #da8548; font-weight: bold;">0</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">blurred</span> = cv2.GaussianBlur(image, BLUR_KERNEL_SIZE, STD_DEV_X_DIRECTION, STD_DEV_Y_DIRECTION)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MAX_COLOR_VAL</span> = <span style="color: #da8548; font-weight: bold;">255</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLOCK_SIZE</span> = <span style="color: #da8548; font-weight: bold;">15</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">SUBTRACT_FROM_MEAN</span> = -<span style="color: #da8548; font-weight: bold;">2</span>
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">img_bin</span> = cv2.adaptiveThreshold(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   ~blurred,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   MAX_COLOR_VAL,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.ADAPTIVE_THRESH_MEAN_C,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.THRESH_BINARY,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   BLOCK_SIZE,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   SUBTRACT_FROM_MEAN,
+<span style="background-color: #282c34;"> </span>   )
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical</span> = <span style="color: #dcaeea;">horizontal</span> = img_bin.copy()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">SCALE</span> = <span style="color: #da8548; font-weight: bold;">5</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">image_width</span>, <span style="color: #dcaeea;">image_height</span> = horizontal.shape
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontal_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #c678dd;">int</span>(image_width / SCALE), <span style="color: #da8548; font-weight: bold;">1</span>))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontally_opened</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, horizontal_kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">1</span>, <span style="color: #c678dd;">int</span>(image_height / SCALE)))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertically_opened</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, vertical_kernel)
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontally_dilated</span> = cv2.dilate(horizontally_opened, cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">40</span>, <span style="color: #da8548; font-weight: bold;">1</span>)))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertically_dilated</span> = cv2.dilate(vertically_opened, cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">1</span>, <span style="color: #da8548; font-weight: bold;">60</span>)))
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">mask</span> = horizontally_dilated + vertically_dilated
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">contours</span>, <span style="color: #dcaeea;">heirarchy</span> = cv2.findContours(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE,
+<span style="background-color: #282c34;"> </span>   )
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">perimeter_lengths</span> = [cv2.arcLength(c, <span style="color: #a9a1e1;">True</span>) <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> contours]
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">epsilons</span> = [<span style="color: #da8548; font-weight: bold;">0.05</span> * p <span style="color: #51afef;">for</span> p <span style="color: #51afef;">in</span> perimeter_lengths]
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">approx_polys</span> = [cv2.approxPolyDP(c, e, <span style="color: #a9a1e1;">True</span>) <span style="color: #51afef;">for</span> c, e <span style="color: #51afef;">in</span> <span style="color: #c678dd;">zip</span>(contours, epsilons)]
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Filter out contours that aren't rectangular. Those that aren't rectangular</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">are probably noise.</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">approx_rects</span> = [p <span style="color: #51afef;">for</span> p <span style="color: #51afef;">in</span> approx_polys <span style="color: #51afef;">if</span> <span style="color: #c678dd;">len</span>(p) == <span style="color: #da8548; font-weight: bold;">4</span>]
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bounding_rects</span> = [cv2.boundingRect(a) <span style="color: #51afef;">for</span> a <span style="color: #51afef;">in</span> approx_polys]
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Filter out rectangles that are too narrow or too short.</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MIN_RECT_WIDTH</span> = <span style="color: #da8548; font-weight: bold;">40</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MIN_RECT_HEIGHT</span> = <span style="color: #da8548; font-weight: bold;">10</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bounding_rects</span> = [
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   r <span style="color: #51afef;">for</span> r <span style="color: #51afef;">in</span> bounding_rects <span style="color: #51afef;">if</span> MIN_RECT_WIDTH &lt; r[<span style="color: #da8548; font-weight: bold;">2</span>] <span style="color: #51afef;">and</span> MIN_RECT_HEIGHT &lt; r[<span style="color: #da8548; font-weight: bold;">3</span>]
+<span style="background-color: #282c34;"> </span>   ]
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">The largest bounding rectangle is assumed to be the entire table.</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Remove it from the list. We don't want to accidentally try to OCR</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">the entire table.</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">largest_rect</span> = <span style="color: #c678dd;">max</span>(bounding_rects, key=<span style="color: #51afef;">lambda</span> r: r[<span style="color: #da8548; font-weight: bold;">2</span>] * r[<span style="color: #da8548; font-weight: bold;">3</span>])
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bounding_rects</span> = [b <span style="color: #51afef;">for</span> b <span style="color: #51afef;">in</span> bounding_rects <span style="color: #51afef;">if</span> b <span style="color: #51afef;">is</span> <span style="color: #51afef;">not</span> largest_rect]
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cells</span> = [c <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> bounding_rects]
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">def</span> <span style="color: #c678dd;">cell_in_same_row</span>(c1, c2):
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">c1_center</span> = c1[<span style="color: #da8548; font-weight: bold;">1</span>] + c1[<span style="color: #da8548; font-weight: bold;">3</span>] - c1[<span style="color: #da8548; font-weight: bold;">3</span>] / <span style="color: #da8548; font-weight: bold;">2</span>
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">c2_bottom</span> = c2[<span style="color: #da8548; font-weight: bold;">1</span>] + c2[<span style="color: #da8548; font-weight: bold;">3</span>]
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">c2_top</span> = c2[<span style="color: #da8548; font-weight: bold;">1</span>]
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> c2_top &lt; c1_center &lt; c2_bottom
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">orig_cells</span> = [c <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> cells]
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">rows</span> = []
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">while</span> cells:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">first</span> = cells[<span style="color: #da8548; font-weight: bold;">0</span>]
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">rest</span> = cells[<span style="color: #da8548; font-weight: bold;">1</span>:]
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cells_in_same_row</span> = <span style="color: #c678dd;">sorted</span>(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   [
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   c <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> rest
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> cell_in_same_row(c, first)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   ],
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   key=<span style="color: #51afef;">lambda</span> c: c[<span style="color: #da8548; font-weight: bold;">0</span>]
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   )
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">row_cells</span> = <span style="color: #c678dd;">sorted</span>([first] + cells_in_same_row, key=<span style="color: #51afef;">lambda</span> c: c[<span style="color: #da8548; font-weight: bold;">0</span>])
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   rows.append(row_cells)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cells</span> = [
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   c <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> rest
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> <span style="color: #51afef;">not</span> cell_in_same_row(c, first)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   ]
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Sort rows by average height of their center.</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">def</span> <span style="color: #c678dd;">avg_height_of_center</span>(row):
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">centers</span> = [y + h - h / <span style="color: #da8548; font-weight: bold;">2</span> <span style="color: #51afef;">for</span> x, y, w, h <span style="color: #51afef;">in</span> row]
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> <span style="color: #c678dd;">sum</span>(centers) / <span style="color: #c678dd;">len</span>(centers)
+<span style="background-color: #282c34;"> </span>   
+<span style="background-color: #282c34;"> </span>   rows.sort(key=avg_height_of_center)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cell_images_rows</span> = []
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> row <span style="color: #51afef;">in</span> rows:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cell_images_row</span> = []
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> x, y, w, h <span style="color: #51afef;">in</span> row:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cell_images_row.append(image[y:y+h, x:x+w])
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cell_images_rows.append(cell_images_row)
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> cell_images_rows
 </pre>
 </div>
+</div>
+</div>
+
+<div id="outline-container-orgb988224" class="outline-5">
+<h5 id="orgb988224"><span class="section-number-5">5.2.5.2</span> table_ocr/extract_cells/__main__.py</h5>
+<div class="outline-text-5" id="text-5-2-5-2">
+<p>
+Takes as a command line argument a path to an image of a table.
+</p>
+
+<p>
+Detects cells in the table and extracts each cell to an image file in a new
+<code>/cells/</code> subdirectory in the same directory of the given image&rsquo;s path.
+</p>
+
+<p>
+Each cell filename is suffixed with <code>&lt;row&gt;-&lt;column&gt;</code> so that the filenames can
+be sorted lexicographically and will align with reading the cells from
+left-to-right, top-to-bottom.
+</p>
+
+<p>
+Prints to stdout the lexicographically sorted list of filenames of the extracted
+cells.
+</p>
 
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #51afef;">import</span> os
 <span style="color: #51afef;">import</span> sys
 
 <span style="color: #51afef;">import</span> cv2
-<span style="color: #51afef;">import</span> pytesseract
+
+<span style="color: #51afef;">from</span> table_ocr.extract_cells <span style="color: #51afef;">import</span> extract_cell_images_from_table
 
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">main</span>(f):
 <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">results</span> = []
@@ -1324,7 +1846,7 @@ python -m pdf.extract_cells_from_table <span style="color: #98be65;">"resources/
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cell_filename</span> = <span style="color: #98be65;">"{:03d}-{:03d}.png"</span>.<span style="color: #c678dd;">format</span>(i, j)
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">path</span> = os.path.join(cell_img_dir, cell_filename)
 <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.imwrite(path, cell)
-<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(cell_filename)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(path)
 
 
 <span style="color: #51afef;">def</span> <span style="color: #c678dd;">extract_cell_images_from_table</span>(image):
@@ -1430,11 +1952,202 @@ python -m pdf.extract_cells_from_table <span style="color: #98be65;">"resources/
 </div>
 </div>
 </div>
+
+<div id="outline-container-org04c3633" class="outline-4">
+<h4 id="org04c3633"><span class="section-number-4">5.2.6</span> table_ocr/ocr_image/</h4>
+<div class="outline-text-4" id="text-5-2-6">
+</div>
+<div id="outline-container-orgd01e3e7" class="outline-5">
+<h5 id="orgd01e3e7"><span class="section-number-5">5.2.6.1</span> table_ocr/ocr_image/__init__.py</h5>
+<div class="outline-text-5" id="text-5-2-6-1">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #51afef;">import</span> math
+
+<span style="color: #51afef;">import</span> cv2
+<span style="color: #51afef;">import</span> numpy <span style="color: #51afef;">as</span> np
+<span style="color: #51afef;">import</span> pytesseract
+
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">crop_to_text</span>(image):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MAX_COLOR_VAL</span> = <span style="color: #da8548; font-weight: bold;">255</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">BLOCK_SIZE</span> = <span style="color: #da8548; font-weight: bold;">15</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">SUBTRACT_FROM_MEAN</span> = -<span style="color: #da8548; font-weight: bold;">2</span>
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">img_bin</span> = cv2.adaptiveThreshold(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   ~image,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   MAX_COLOR_VAL,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.ADAPTIVE_THRESH_MEAN_C,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   cv2.THRESH_BINARY,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   BLOCK_SIZE,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   SUBTRACT_FROM_MEAN,
+<span style="background-color: #282c34;"> </span>   )
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">img_h</span>, <span style="color: #dcaeea;">img_w</span> = image.shape
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontal_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #c678dd;">int</span>(img_w * <span style="color: #da8548; font-weight: bold;">0.5</span>), <span style="color: #da8548; font-weight: bold;">1</span>))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical_kernel</span> = cv2.getStructuringElement(cv2.MORPH_RECT, (<span style="color: #da8548; font-weight: bold;">1</span>, <span style="color: #c678dd;">int</span>(img_h * <span style="color: #da8548; font-weight: bold;">0.7</span>)))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">horizontal_lines</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, horizontal_kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">vertical_lines</span> = cv2.morphologyEx(img_bin, cv2.MORPH_OPEN, vertical_kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">both</span> = horizontal_lines + vertical_lines
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cleaned</span> = img_bin - both
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">Get rid of little noise.</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">kernel</span> = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (<span style="color: #da8548; font-weight: bold;">3</span>, <span style="color: #da8548; font-weight: bold;">3</span>))
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">opened</span> = cv2.morphologyEx(cleaned, cv2.MORPH_OPEN, kernel)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">opened</span> = cv2.dilate(opened, kernel)
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">contours</span>, <span style="color: #dcaeea;">hierarchy</span> = cv2.findContours(opened, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bounding_rects</span> = [cv2.boundingRect(c) <span style="color: #51afef;">for</span> c <span style="color: #51afef;">in</span> contours]
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">NUM_PX_COMMA</span> = <span style="color: #da8548; font-weight: bold;">6</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">MIN_CHAR_AREA</span> = <span style="color: #da8548; font-weight: bold;">5</span> * <span style="color: #da8548; font-weight: bold;">9</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">char_sized_bounding_rects</span> = [(x, y, w, h) <span style="color: #51afef;">for</span> x, y, w, h <span style="color: #51afef;">in</span> bounding_rects <span style="color: #51afef;">if</span> w * h &gt; MIN_CHAR_AREA]
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> char_sized_bounding_rects:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">minx</span>, <span style="color: #dcaeea;">miny</span>, <span style="color: #dcaeea;">maxx</span>, <span style="color: #dcaeea;">maxy</span> = math.inf, math.inf, <span style="color: #da8548; font-weight: bold;">0</span>, <span style="color: #da8548; font-weight: bold;">0</span>
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> x, y, w, h <span style="color: #51afef;">in</span> char_sized_bounding_rects:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">minx</span> = <span style="color: #c678dd;">min</span>(minx, x)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">miny</span> = <span style="color: #c678dd;">min</span>(miny, y)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">maxx</span> = <span style="color: #c678dd;">max</span>(maxx, x + w)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">maxy</span> = <span style="color: #c678dd;">max</span>(maxy, y + h)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">x</span>, <span style="color: #dcaeea;">y</span>, <span style="color: #dcaeea;">w</span>, <span style="color: #dcaeea;">h</span> = minx, miny, maxx - minx, maxy - miny
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = image[y:<span style="color: #c678dd;">min</span>(img_h, y+h+NUM_PX_COMMA), x:<span style="color: #c678dd;">min</span>(img_w, x+w)]
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">else</span>:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #5B6268;"># </span><span style="color: #5B6268;">If we morphed out all of the text, assume an empty image.</span>
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = MAX_COLOR_VAL * np.ones(shape=(<span style="color: #da8548; font-weight: bold;">20</span>, <span style="color: #da8548; font-weight: bold;">100</span>), dtype=np.uint8)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">bordered</span> = cv2.copyMakeBorder(cropped, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, <span style="color: #da8548; font-weight: bold;">5</span>, cv2.BORDER_CONSTANT, <span style="color: #a9a1e1;">None</span>, <span style="color: #da8548; font-weight: bold;">255</span>)
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> bordered
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">ocr_image</span>(image, config):
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> pytesseract.image_to_string(
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   image,
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   config=config
+<span style="background-color: #282c34;"> </span>   )
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org2a58364" class="outline-5">
+<h5 id="org2a58364"><span class="section-number-5">5.2.6.2</span> table_ocr/ocr_image/__main__.py</h5>
+<div class="outline-text-5" id="text-5-2-6-2">
+<p>
+This does a little bit of cleanup before sending it through tesseract.
+</p>
+
+<p>
+Creates images and text files that can be used for training tesseract. See
+<a href="https://github.com/tesseract-ocr/tesstrain">https://github.com/tesseract-ocr/tesstrain</a>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #51afef;">import</span> argparse
+<span style="color: #51afef;">import</span> math
+<span style="color: #51afef;">import</span> os
+<span style="color: #51afef;">import</span> sys
+
+<span style="color: #51afef;">import</span> cv2
+
+<span style="color: #51afef;">from</span> table_ocr.ocr_image <span style="color: #51afef;">import</span> crop_to_text, ocr_image
+
+<span style="color: #dcaeea;">description</span>=<span style="color: #98be65;">"""Takes a single argument that is the image to OCR.</span>
+<span style="color: #98be65;">Remaining arguments are passed directly to Tesseract.</span>
+
+<span style="color: #98be65;">Attempts to make OCR more accurate by performing some modifications on the image.</span>
+<span style="color: #98be65;">Saves the modified image and the OCR text in an `ocr_data` directory.</span>
+<span style="color: #98be65;">Filenames are of the format for training with tesstrain."""</span>
+<span style="color: #dcaeea;">parser</span> = argparse.ArgumentParser(description=description)
+parser.add_argument(<span style="color: #98be65;">"image"</span>, <span style="color: #c678dd;">help</span>=<span style="color: #98be65;">"filepath of image to perform OCR"</span>)
+
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">main</span>(image_file, tess_args):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">directory</span>, <span style="color: #dcaeea;">filename</span> = os.path.split(image_file)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">filename_sans_ext</span>, <span style="color: #dcaeea;">ext</span> = os.path.splitext(filename)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">image</span> = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">cropped</span> = crop_to_text(image)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">ocr_data_dir</span> = os.path.join(directory, <span style="color: #98be65;">"ocr_data"</span>)
+<span style="background-color: #282c34;"> </span>   os.makedirs(ocr_data_dir, exist_ok=<span style="color: #a9a1e1;">True</span>)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">out_imagepath</span> = os.path.join(ocr_data_dir, filename)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">out_txtpath</span> = os.path.join(ocr_data_dir, <span style="color: #98be65;">"{}.gt.txt"</span>.<span style="color: #c678dd;">format</span>(filename_sans_ext))
+<span style="background-color: #282c34;"> </span>   cv2.imwrite(out_imagepath, cropped)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">txt</span> = ocr_image(cropped, <span style="color: #98be65;">" "</span>.join(tess_args))
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(txt)
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">with</span> <span style="color: #c678dd;">open</span>(out_txtpath, <span style="color: #98be65;">"w"</span>) <span style="color: #51afef;">as</span> txt_file:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   txt_file.write(txt)
+
+<span style="color: #51afef;">if</span> <span style="color: #c678dd;">__name__</span> == <span style="color: #98be65;">"__main__"</span>:
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">args</span>, <span style="color: #dcaeea;">tess_args</span> = parser.parse_known_args()
+<span style="background-color: #282c34;"> </span>   main(args.image, tess_args)
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org2c74337" class="outline-4">
+<h4 id="org2c74337"><span class="section-number-4">5.2.7</span> table_ocr/ocr_to_csv/</h4>
+<div class="outline-text-4" id="text-5-2-7">
+</div>
+<div id="outline-container-orgf6b3289" class="outline-5">
+<h5 id="orgf6b3289"><span class="section-number-5">5.2.7.1</span> table_ocr/ocr_to_csv/__init__.py</h5>
+<div class="outline-text-5" id="text-5-2-7-1">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #51afef;">import</span> csv
+<span style="color: #51afef;">import</span> io
+<span style="color: #51afef;">import</span> os
+
+
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">text_files_to_csv</span>(files):
+<span style="background-color: #282c34;"> </span>   <span style="color: #83898d;">"""Files must be sorted lexicographically</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   Filenames must be &lt;row&gt;-&lt;colum&gt;.txt.</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   000-000.txt</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   000-001.txt</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   001-000.txt</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   etc...</span>
+<span style="color: #83898d; background-color: #282c34;"> </span><span style="color: #83898d;">   """</span>
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">rows</span> = []
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">for</span> f <span style="color: #51afef;">in</span> files:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">directory</span>, <span style="color: #dcaeea;">filename</span> = os.path.split(f)
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">with</span> <span style="color: #c678dd;">open</span>(f) <span style="color: #51afef;">as</span> of:
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">txt</span> = of.read()
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">row</span>, <span style="color: #dcaeea;">column</span> = <span style="color: #c678dd;">map</span>(<span style="color: #c678dd;">int</span>, filename.split(<span style="color: #98be65;">"."</span>)[<span style="color: #da8548; font-weight: bold;">0</span>].split(<span style="color: #98be65;">"-"</span>))
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">if</span> row == <span style="color: #c678dd;">len</span>(rows):
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   rows.append([])
+<span style="background-color: #282c34;"> </span>   <span style="background-color: #282c34;"> </span>   rows[row].append(txt)
+
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">csv_file</span> = io.StringIO()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">writer</span> = csv.writer(csv_file)
+<span style="background-color: #282c34;"> </span>   writer.writerows(rows)
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> csv_file.getvalue()
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4befe04" class="outline-5">
+<h5 id="org4befe04"><span class="section-number-5">5.2.7.2</span> table_ocr/ocr_to_csv/__main__.py</h5>
+<div class="outline-text-5" id="text-5-2-7-2">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #51afef;">import</span> argparse
+<span style="color: #51afef;">import</span> os
+
+<span style="color: #51afef;">from</span> table_ocr.ocr_to_csv <span style="color: #51afef;">import</span> text_files_to_csv
+
+<span style="color: #dcaeea;">parser</span> = argparse.ArgumentParser()
+parser.add_argument(<span style="color: #98be65;">"files"</span>, nargs=<span style="color: #98be65;">"+"</span>)
+
+
+<span style="color: #51afef;">def</span> <span style="color: #c678dd;">main</span>(files):
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">print</span>(text_files_to_csv(files))
+
+
+<span style="color: #51afef;">if</span> <span style="color: #c678dd;">__name__</span> == <span style="color: #98be65;">"__main__"</span>:
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">args</span> = parser.parse_args()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">files</span> = args.files
+<span style="background-color: #282c34;"> </span>   files.sort()
+<span style="background-color: #282c34;"> </span>   main(files)
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
-<div id="outline-container-org37d29da" class="outline-2">
-<h2 id="org37d29da"><span class="section-number-2">5</span> Utils</h2>
-<div class="outline-text-2" id="text-5">
+<div id="outline-container-org487dcc8" class="outline-2">
+<h2 id="org487dcc8"><span class="section-number-2">6</span> Utils</h2>
+<div class="outline-text-2" id="text-6">
 <p>
 The following code lets us specify a size for images when they are exported to
 html.
@@ -1460,12 +2173,9 @@ with <code>advice-add</code>.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp" id="orgee2042c"><span style="color: #51afef;">(</span><span style="color: #a9a1e1;">concat</span> <span style="color: #98be65;">"#+ATTR_HTML: :width "</span> width <span style="color: #98be65;">" :height "</span> height <span style="color: #98be65;">"\n[[file:"</span> text <span style="color: #98be65;">"]]"</span><span style="color: #51afef;">)</span>
+<pre class="src src-emacs-lisp" id="org4050aca"><span style="color: #51afef;">(</span><span style="color: #a9a1e1;">concat</span> <span style="color: #98be65;">"#+ATTR_HTML: :width "</span> width <span style="color: #98be65;">" :height "</span> height <span style="color: #98be65;">"\n[[file:"</span> text <span style="color: #98be65;">"]]"</span><span style="color: #51afef;">)</span>
 </pre>
 </div>
-<p width="100%" height="100%">
-<a href="" width="100%" height="100%"></a>
-</p>
 
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #51afef;">(</span><span style="color: #51afef;">defun</span> <span style="color: #c678dd;">remove-attributes-from-src-block-result</span> <span style="color: #c678dd;">(</span><span style="color: #ECBE7B;">&amp;rest</span> args<span style="color: #c678dd;">)</span>
@@ -1484,11 +2194,30 @@ with <code>advice-add</code>.
 </pre>
 </div>
 </div>
+
+<div id="outline-container-org457567f" class="outline-3">
+<h3 id="org457567f"><span class="section-number-3">6.1</span> Logging</h3>
+<div class="outline-text-3" id="text-6-1">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #51afef;">def</span> <span style="color: #c678dd;">get_logger</span>(name):
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">logger</span> = logging.getLogger(name)
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">lvl</span> = os.environ.get(<span style="color: #98be65;">"PY_LOG_LVL"</span>, <span style="color: #98be65;">"info"</span>).upper()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">handler</span> = logging.StreamHandler()
+<span style="background-color: #282c34;"> </span>   <span style="color: #dcaeea;">formatter</span> = logging.Formatter(logging.BASIC_FORMAT)
+<span style="background-color: #282c34;"> </span>   handler.setFormatter(formatter)
+<span style="background-color: #282c34;"> </span>   logger.addHandler(handler)
+<span style="background-color: #282c34;"> </span>   handler.setLevel(lvl)
+<span style="background-color: #282c34;"> </span>   logger.setLevel(lvl)
+<span style="background-color: #282c34;"> </span>   <span style="color: #51afef;">return</span> logger
+</pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Eric Ihli</p>
-<p class="date">Created: 2020-04-10 Fri 14:10</p>
+<p class="date">Created: 2020-04-25 Sat 12:20</p>
 </div>
 </body>
 </html>
