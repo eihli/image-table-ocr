@@ -33,7 +33,7 @@ The package is split into modules with narrow focuses.
 - ~pdf_to_images~ uses Poppler and ImageMagick to extract images from a PDF.
 - ~extract_tables~ finds and extracts table-looking things from an image.
 - ~extract_cells~ extracts and orders cells from a table.
-- ~ocr_image~ uses Tesseract to turn a OCR the text from an image of a cell.
+- ~ocr_image~ uses Tesseract to OCR the text from an image of a cell.
 - ~ocr_to_csv~ converts into a CSV the directory structure that ~ocr_image~ outputs.
 
 The outputs of a previous model can be used by a subsequent model so that they
