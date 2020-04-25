@@ -58,5 +58,5 @@ done
 #+END_SRC
 
 The package was written in a [[https://en.wikipedia.org/wiki/Literate_programming][literate programming]] style. The source code at
-[[file:pdf_table_extraction_and_ocr.org]] is
+[[https://eihli.github.io/image-table-ocr/pdf_table_extraction_and_ocr.html]] is
 meant to act as the documentation and reference material.
