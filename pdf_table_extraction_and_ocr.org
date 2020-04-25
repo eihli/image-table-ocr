@@ -50,30 +50,54 @@ Toa,,
 ,,"* Based upon 2,567,700"
 #+END_EXAMPLE
 
-** To get CSV data from a table in a scanned pdf document:
+The package is split into modules with narrow focuses.
 
-#+BEGIN_SRC shell :results none :session *Shell*
-TABLES=("/tmp/example-1/example-1.pdf" "/tmp/example-2/example-2.pdf")
-python -m table_ocr.prepare_pdfs $TABLES | grep .png > /tmp/pdf-images.txt
-cat /tmp/pdf-images.txt | xargs -I{} python -m table_ocr.extract_tables {}  | grep table > /tmp/extracted-tables.txt
-cat /tmp/extracted-tables.txt | xargs -I{} python -m table_ocr.extract_cells_from_table {} | grep cells > /tmp/extracted-cells.txt
-cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {}
+- ~pdf_to_images~ uses Poppler and ImageMagick to extract images from a PDF.
+- ~extract_tables~ finds and extracts table-looking things from an image.
+- ~extract_cells~ extracts and orders cells from a table.
+- ~ocr_image~ uses Tesseract to turn a OCR the text from an image of a cell.
+- ~ocr_to_csv~ converts into a CSV the directory structure that ~ocr_image~ outputs.
 
-# This next one needs to be run on each subdirectory one at a time.
-python -m table_ocr.ocr_to_csv $(find . -iregex ".*cells.*ocr_data.*\.txt" 2>/dev/null)
-#+END_SRC
+** Requirements
 
-Or, as a shell script.
+*** Python packages
+- numpy
+- opencv-python
+- pytesseract
 
+*** External
+- ~pdfimages~ from Poppler
+- Tesseract
+- ~mogfrify~ ImageMagick
+
+** Contributing
+
+This package was created in a [[https://en.wikipedia.org/wiki/Literate_programming][literate programming]] style with the help of [[https://orgmode.org/worg/org-contrib/babel/intro.html][Babel]].
+
+The unfortunate downside is the obscurity of the tooling. It creates a bit of a
+barrier for contributors who aren't already familiar with Emacs and Babel.
+
+** Example usage
+
+Here is an example of a shell script that uses each module to turn a pdf with a
+table into CSV output.
+
+Depending on your needs, you may not need all of these steps. If you already
+have an image of a table, you can jum straight to extracting the cells.
+
+Each piece is its own python module, so you can also simply import the pieces
+you need into your own python projects and use them as needed.
+
+#+NAME: ocr_tables
 #+BEGIN_SRC shell :results none :tangle ocr_tables :tangle-mode (identity #o755)
 #!/bin/sh
 
 PDF=$1
 
-python -m table_ocr.prepare_pdfs $PDF | grep .png > /tmp/pdf-images.txt
+python -m table_ocr.pdf_to_images $PDF | grep .png > /tmp/pdf-images.txt
 cat /tmp/pdf-images.txt | xargs -I{} python -m table_ocr.extract_tables {}  | grep table > /tmp/extracted-tables.txt
-cat /tmp/extracted-tables.txt | xargs -I{} python -m table_ocr.extract_cells_from_table {} | grep cells > /tmp/extracted-cells.txt
-cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {} --psm 7 -l data-table
+cat /tmp/extracted-tables.txt | xargs -I{} python -m table_ocr.extract_cells {} | grep cells > /tmp/extracted-cells.txt
+cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {} --psm 7 -l table-ocr
 
 for image in $(cat /tmp/extracted-tables.txt); do
     dir=$(dirname $image)
@@ -86,11 +110,12 @@ done
 Detect text with the stroke-width-transform alogoritm. https://zablo.net/blog/post/stroke-width-transform-swt-python/index.html
 
 * Preparing data
-** Converting PDFs to images
 
 Not all pdfs need to be sent through OCR to extract the text content. If you can
 click and drag to highlight text in the pdf, then the tools in this library
 probably aren't necessary.
+
+** Converting PDFs to images
 
 This code calls out to [[https://manpages.debian.org/testing/poppler-utils/pdfimages.1.en.html][pdfimages]] from [[https://poppler.freedesktop.org/][Poppler]].
 
@@ -228,22 +253,27 @@ def find_tables(image):
     return images
 #+END_SRC
 
+Here is an the an example of the result of the ~find_tables~ function.
+
 #+HEADER: :post html-image-size(text=*this*, width="500px")
-#+BEGIN_SRC python :noweb-ref test-detect-table :noweb strip-export :results raw
+#+BEGIN_SRC python :noweb-ref test-detect-table :noweb strip-export :results none
 import cv2
-
 <<detect-tables>>
-
 image_filename = "resources/examples/example-page.png"
 image = cv2.imread(image_filename, cv2.IMREAD_GRAYSCALE)
 image = find_tables(image)[0]
 cv2.imwrite("resources/examples/example-table.png", image)
-"resources/examples/example-table.png"
 #+END_SRC
 
-#+RESULTS:
-#+ATTR_HTML: :width 500px :height 100%
+#+BEGIN_CENTER
+#+ATTR_HTML: :width 250px
+[[file:resources/examples/example-page.png]]
+
+↓
+
+#+ATTR_HTML: :width 250px
 [[file:resources/examples/example-table.png]]
+#+END_CENTER
 
 ** Improving accuracy
 
@@ -261,10 +291,48 @@ the x, y, width and height are anywhere in that range.
 
 * OCR tables
 
-Find the bounding box of each cell in the table. Run tesseract on each cell.
-Print a comma seperated output.
+Tesseract does not perform well when run on images of tables. It performs best
+when given a single line of text with no extra noise.
+
+Therefore, our next task is to find and extract the bounding box of each cell in
+the table. Run tesseract on each cell. Print a comma seperated output.
 
 We'll start with an image shown at the end of the previous section.
+
+** Training Tesseract
+
+It's a very good idea to train tesseract. Accuracy will improve tremendously.
+
+Clone the tesstrain repo at [[https://github.com/tesseract-ocr/tesstrain]].
+
+Run the [[ocr_tables][~ocr_tables~]] script on a few pdfs to generate some training data. That
+script outputs pairs of ~.png~ and ~.gt.txt~ files that can be used by
+tesstrain.
+
+Make sure the ~.gt.txt~ files contain an accurate recognition of the
+corresponding image. Since the first few runs will be untrained, you'll probably
+need to fix up a few of the text files.
+
+Once they are accurate, move them to a new subdirectory of the tesstrain repo;
+~tesstrain/data/<model-name>-ground-truth/~.
+
+You'll also need to clone the ~tessdata_best~ repo,
+[[https://github.com/tesseract-ocr/tessdata_best]] and the
+https://github.com/tesseract-ocr/langdata to use as the start of the
+training model.
+
+I'm actually not sure how much the punctuation and numbers from ~langdata~ help.
+I didn't keep accurate records while playing with the training, I don't
+thoroughly understand it, and it's not profitable for me to explore it at the
+moment. It worked for my purposes and that has been good enough.
+
+#+BEGIN_EXAMPLE
+make training MODEL_NAME=table-ocr START_MODEL=eng TESSDATA=~/src/tessdata_best PUNC_FILE=~/src/langdata/eng/eng.punc NUMBERS_FILE=~/src/langdata/eng/eng.numbers
+#+END_EXAMPLE
+
+Once the training is complete, there will be a new file
+~tesstrain/data/<model-name>.traineddata~. Copy that file to the directory
+Tesseract searches for models. On my machine, it was ~/usr/local/share/tessdata/~.
 
 ** Blur
 
@@ -285,14 +353,12 @@ blurred = cv2.GaussianBlur(image, BLUR_KERNEL_SIZE, STD_DEV_X_DIRECTION, STD_DEV
 #+END_SRC
 
 #+HEADER: :post html-image-size(text=*this*, width="500px")
-#+BEGIN_SRC python :noweb no-export :results raw :exports both
+#+BEGIN_SRC python :noweb no-export :results none :exports both
 image = ~cv2.imread("resources/examples/example-table.png", cv2.IMREAD_GRAYSCALE)
 <<blur>>
 cv2.imwrite("resources/examples/example-table-blurred.png", blurred)
-"resources/examples/example-table-blurred.png"
 #+END_SRC
 
-#+RESULTS:
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table-blurred.png]]
 
@@ -318,22 +384,15 @@ img_bin = cv2.adaptiveThreshold(
 #+END_SRC
 
 #+HEADER: :post html-image-size(text=*this*, width="500px")
-#+BEGIN_SRC python :noweb no-export :results raw :exports both
+#+BEGIN_SRC python :noweb no-export :results none :exports both
 <<threshold>>
 cv2.imwrite("resources/examples/example-table-thresholded.png", img_bin)
-"resources/examples/example-table-thresholded.png"
 #+END_SRC
 
-#+RESULTS:
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table-thresholded.png]]
 
 ** Finding the vertical and horizontal lines of the table
-
-Note: There's a wierd issue with the results of the example below when it's
-evaluated as part of an export or a full-buffer evaluation. If you evaluate the
-example by itself, it looks the way it's intended. If you evaluate it as part of
-an entire buffer evaluation, it's distorted.
 
 #+BEGIN_SRC python :noweb-ref lines-of-table :results none
 vertical = horizontal = img_bin.copy()
@@ -350,15 +409,18 @@ vertically_dilated = cv2.dilate(vertically_opened, cv2.getStructuringElement(cv2
 mask = horizontally_dilated + vertically_dilated
 #+END_SRC
 
+Note: There's a wierd issue with the results of the example below when it's
+evaluated as part of an export or a full-buffer evaluation. If you evaluate the
+example by itself, it looks the way it's intended. If you evaluate it as part of
+an entire buffer evaluation, like during export, it's distorted.
+
 #+HEADER: :post html-image-size(text=*this*, width="500px")
-#+BEGIN_SRC python :noweb no-export :results raw :exports both
+#+BEGIN_SRC python :noweb no-export :results none :exports both
 <<lines-of-table>>
 cv2.imwrite("resources/examples/example-table-lines.png", mask)
-"resources/examples/example-table-lines.png"
 #+END_SRC
 
-#+RESULTS:
-#+ATTR_HTML: :width 500px :height 100%
+#+ATTR_HTML: :width 500px
 [[file:resources/examples/example-table-lines.png]]
 
 ** Finding the contours
@@ -478,7 +540,7 @@ To test if this code works, let's try sorting the bounding rectangles and
 numbering them from right to left, top to bottom.
 
 #+HEADER: :post html-image-size(text=*this*, width="500px")
-#+BEGIN_SRC python :noweb no-export :results raw :exports both
+#+BEGIN_SRC python :noweb no-export :results none :exports both
 import cv2
 image = cv2.imread("resources/examples/example-table.png", cv2.IMREAD_GRAYSCALE)
 <<blur>>
@@ -502,10 +564,8 @@ for i, row in enumerate(rows):
             2,
         )
 cv2.imwrite("resources/examples/example-table-cells-numbered.png", image)
-"resources/examples/example-table-cells-numbered.png"
 #+END_SRC
 
-#+RESULTS:
 #+ATTR_HTML: :width 500px :height 100%
 [[file:resources/examples/example-table-cells-numbered.png]]
 
@@ -527,15 +587,13 @@ def extract_cell_images_from_table(image):
 #+END_SRC
 
 #+HEADER: :post html-image-size(text=*this*, width="200px")
-#+BEGIN_SRC python :noweb no-export :results raw :exports both
+#+BEGIN_SRC python :noweb no-export :results none :exports both
 <<extract-cells-from-table>>
 image = cv2.imread("resources/examples/example-table.png", cv2.IMREAD_GRAYSCALE)
 cell_images_rows = extract_cell_images_from_table(image)
 cv2.imwrite("resources/examples/example-table-cell-1-1.png", cell_images_rows[1][1])
-"resources/examples/example-table-cell-1-1.png"
 #+END_SRC
 
-#+RESULTS:
 #+ATTR_HTML: :width 200px :height 100%
 [[file:resources/examples/example-table-cell-1-1.png]]
 
@@ -602,17 +660,15 @@ def crop_to_text(image):
 #+END_SRC
 
 #+HEADER: :post html-image-size(text=*this*, width="200px")
-#+BEGIN_SRC python :noweb no-export :results raw :exports both
+#+BEGIN_SRC python :noweb no-export :results none :exports both
 import cv2
 import numpy as np
 <<crop-to-text>>
 image = cv2.imread("resources/examples/example-table-cell-1-1.png", cv2.IMREAD_GRAYSCALE)
 image = crop_to_text(image)
 cv2.imwrite("resources/examples/example-table-cell-1-1-cropped.png", image)
-"resources/examples/example-table-cell-1-1-cropped.png"
 #+END_SRC
 
-#+RESULTS:
 #+ATTR_HTML: :width 200px :height 100%
 [[file:resources/examples/example-table-cell-1-1-cropped.png]]
 
