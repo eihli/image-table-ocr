@@ -1,4 +1,5 @@
 import cv2
+import os
 
 def extract_cell_images_from_table(image):
     BLUR_KERNEL_SIZE = (17, 17)
@@ -95,3 +96,19 @@ def extract_cell_images_from_table(image):
             cell_images_row.append(image[y:y+h, x:x+w])
         cell_images_rows.append(cell_images_row)
     return cell_images_rows
+
+def main(f):
+    results = []
+    directory, filename = os.path.split(f)
+    table = cv2.imread(f, cv2.IMREAD_GRAYSCALE)
+    rows = extract_cell_images_from_table(table)
+    cell_img_dir = os.path.join(directory, "cells")
+    os.makedirs(cell_img_dir, exist_ok=True)
+    paths = []
+    for i, row in enumerate(rows):
+        for j, cell in enumerate(row):
+            cell_filename = "{:03d}-{:03d}.png".format(i, j)
+            path = os.path.join(cell_img_dir, cell_filename)
+            cv2.imwrite(path, cell)
+            paths.append(path)
+    return paths
