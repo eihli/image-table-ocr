@@ -1,8 +1,32 @@
 import math
+import os
 
 import cv2
 import numpy as np
 import pytesseract
+
+def main(image_file, tess_args):
+    """
+    OCR the image and output the text to a file with an extension that is ready
+    to be used in Tesseract training (.gt.txt).
+
+    Tries to crop the image so that only the relevant text gets passed to Tesseract.
+
+    Returns the name of the text file that contains the text.
+    """
+    directory, filename = os.path.split(image_file)
+    filename_sans_ext, ext = os.path.splitext(filename)
+    image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
+    cropped = crop_to_text(image)
+    ocr_data_dir = os.path.join(directory, "ocr_data")
+    os.makedirs(ocr_data_dir, exist_ok=True)
+    out_imagepath = os.path.join(ocr_data_dir, filename)
+    out_txtpath = os.path.join(ocr_data_dir, "{}.gt.txt".format(filename_sans_ext))
+    cv2.imwrite(out_imagepath, cropped)
+    txt = ocr_image(cropped, " ".join(tess_args))
+    with open(out_txtpath, "w") as txt_file:
+        txt_file.write(txt)
+    return out_txtpath
 
 def crop_to_text(image):
     MAX_COLOR_VAL = 255
