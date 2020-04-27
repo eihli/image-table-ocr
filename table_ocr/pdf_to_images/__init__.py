@@ -11,6 +11,7 @@ logger = get_logger(__name__)
 def pdf_to_images(pdf_filepath):
     """
     Turn a pdf into images
+    Returns the filenames of the created images sorted lexicographically.
     """
     directory, filename = os.path.split(pdf_filepath)
     with working_dir(directory):
@@ -18,7 +19,7 @@ def pdf_to_images(pdf_filepath):
 
     # Since pdfimages creates a number of files named each for there page number
     # and doesn't return us the list that it created
-    return [os.path.join(directory, f) for f in image_filenames]
+    return sorted([os.path.join(directory, f) for f in image_filenames])
 
 
 def pdfimages(pdf_filepath):
