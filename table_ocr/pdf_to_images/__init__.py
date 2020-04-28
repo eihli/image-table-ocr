@@ -14,8 +14,7 @@ def pdf_to_images(pdf_filepath):
     Returns the filenames of the created images sorted lexicographically.
     """
     directory, filename = os.path.split(pdf_filepath)
-    with working_dir(directory):
-        image_filenames = pdfimages(pdf_filepath)
+    image_filenames = pdfimages(pdf_filepath)
 
     # Since pdfimages creates a number of files named each for there page number
     # and doesn't return us the list that it created
@@ -32,8 +31,14 @@ def pdfimages(pdf_filepath):
     uses 3 digits in its regex.
     """
     directory, filename = os.path.split(pdf_filepath)
+    if not os.path.isabs(directory):
+        directory = os.path.abspath(directory)
     filename_sans_ext = filename.split(".pdf")[0]
-    subprocess.run(["pdfimages", "-png", pdf_filepath, filename.split(".pdf")[0]])
+
+    # pdfimages outputs results to the current working directory
+    with working_dir(directory):
+        subprocess.run(["pdfimages", "-png", filename, filename.split(".pdf")[0]])
+
     image_filenames = find_matching_files_in_dir(filename_sans_ext, directory)
     logger.debug(
         "Converted {} into files:\n{}".format(pdf_filepath, "\n".join(image_filenames))

@@ -129,8 +129,7 @@ def pdf_to_images(pdf_filepath):
     Returns the filenames of the created images sorted lexicographically.
     """
     directory, filename = os.path.split(pdf_filepath)
-    with working_dir(directory):
-        image_filenames = pdfimages(pdf_filepath)
+    image_filenames = pdfimages(pdf_filepath)
 
     # Since pdfimages creates a number of files named each for there page number
     # and doesn't return us the list that it created
@@ -147,8 +146,14 @@ def pdfimages(pdf_filepath):
     uses 3 digits in its regex.
     """
     directory, filename = os.path.split(pdf_filepath)
+    if not os.path.isabs(directory):
+        directory = os.path.abspath(directory)
     filename_sans_ext = filename.split(".pdf")[0]
-    subprocess.run(["pdfimages", "-png", pdf_filepath, filename.split(".pdf")[0]])
+
+    # pdfimages outputs results to the current working directory
+    with working_dir(directory):
+        subprocess.run(["pdfimages", "-png", filename, filename.split(".pdf")[0]])
+
     image_filenames = find_matching_files_in_dir(filename_sans_ext, directory)
     logger.debug(
         "Converted {} into files:\n{}".format(pdf_filepath, "\n".join(image_filenames))
@@ -189,19 +194,29 @@ to correct the rotation. This makes OCR more straightforward.
 
 #+NAME: fix-orientation
 #+BEGIN_SRC python :results none
-def preprocess_img(filepath):
-    """
-    Processing that involves running shell executables,
+def preprocess_img(filepath, tess_params=None):
+    """Processing that involves running shell executables,
     like mogrify to rotate.
+
+    Uses tesseract to detect rotation.
+   
+    Orientation and script detection is only available for legacy tesseract
+    (--oem 0). Some versions of tesseract will segfault if you let it run OSD
+    with the default oem (3).
     """
-    rotate = get_rotate(filepath)
+    if tess_params is None:
+        tess_params = ["--psm", "0", "--oem", "0"]
+    rotate = get_rotate(filepath, tess_params)
     logger.debug("Rotating {} by {}.".format(filepath, rotate))
     mogrify(filepath, rotate)
 
 
-def get_rotate(image_filepath):
+def get_rotate(image_filepath, tess_params):
+    """
+    """
+    tess_command = ["tesseract"] + tess_params + [image_filepath, "-"]
     output = (
-        subprocess.check_output(["tesseract", "--psm", "0", image_filepath, "-"])
+        subprocess.check_output(tess_command)
         .decode("utf-8")
         .split("\n")
     )
