@@ -54,19 +54,29 @@ def find_matching_files_in_dir(file_prefix, directory):
     ]
     return files
 
-def preprocess_img(filepath):
-    """
-    Processing that involves running shell executables,
+def preprocess_img(filepath, tess_params=None):
+    """Processing that involves running shell executables,
     like mogrify to rotate.
+
+    Uses tesseract to detect rotation.
+
+    Orientation and script detection is only available for legacy tesseract
+    (--oem 0). Some versions of tesseract will segfault if you let it run OSD
+    with the default oem (3).
     """
-    rotate = get_rotate(filepath)
+    if tess_params is None:
+        tess_params = ["--psm", "0", "--oem", "0"]
+    rotate = get_rotate(filepath, tess_params)
     logger.debug("Rotating {} by {}.".format(filepath, rotate))
     mogrify(filepath, rotate)
 
 
-def get_rotate(image_filepath):
+def get_rotate(image_filepath, tess_params):
+    """
+    """
+    tess_command = ["tesseract"] + tess_params + [image_filepath, "-"]
     output = (
-        subprocess.check_output(["tesseract", "--psm", "0", image_filepath, "-"])
+        subprocess.check_output(tess_command)
         .decode("utf-8")
         .split("\n")
     )
