@@ -59,7 +59,7 @@ def preprocess_img(filepath, tess_params=None):
     like mogrify to rotate.
 
     Uses tesseract to detect rotation.
-
+   
     Orientation and script detection is only available for legacy tesseract
     (--oem 0). Some versions of tesseract will segfault if you let it run OSD
     with the default oem (3).
