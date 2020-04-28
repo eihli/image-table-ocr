@@ -350,6 +350,43 @@ Once the training is complete, there will be a new file
 ~tesstrain/data/<model-name>.traineddata~. Copy that file to the directory
 Tesseract searches for models. On my machine, it was ~/usr/local/share/tessdata/~.
 
+*** Training tips
+
+Here is a tip for quickly creating training data.
+
+The output of the ~ocr_cells~ script will be a directory named ~ocr_data~ that
+will have two files for each cell. One file is the image of the cell and the
+other file is the OCR text.
+
+You'll want to compare each image to its OCR text to check for accuracy. If
+the text doesn't match, you'll want to update the text and add the image to the
+training data.
+
+The fastest way to do this is with ~feh~.
+
+~feh~ lets you view an image and a caption at the same time and lets you edit
+the caption from within ~feh~.
+
+~feh~ expects the captions to be named ~<image-name>.txt~, so use a little
+shell-fu to do a quick rename.
+
+#+BEGIN_SRC shell
+for f in *.txt; do f1=$(cut -d"." -f1 <(echo $f)); mv $f ${f1}.png.txt; done
+#+END_SRC
+
+Then run ~feh -K .~ to specify the current directory as the caption directory.
+This will open a window with the first image in the directory and its caption.
+
+Press ~c~ to edit the caption (if needed) and ~n~/~p~ to move to the
+next/previons images. Press ~q~ to quit.
+
+When finished, rename the files back to the filename structure that Tesseract
+looks for in training.
+
+#+BEGIN_SRC shell
+for f in *.txt; do f1=$(cut -d"." -f1 <(echo $f)); mv $f ${f1}.gt.txt; done
+#+END_SRC
+
 ** Blur
 
 Blurring helps to make noise less noisy so that the overall structure of an
