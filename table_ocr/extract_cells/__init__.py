@@ -2,6 +2,8 @@ from copy import copy
 import cv2
 import os
 
+import cv2
+
 def label_cells(image, cells):
     image = image.copy()
     rows = sort_cells(cells)
@@ -27,18 +29,11 @@ def draw_bounding_rects(image, rects):
         cv2.rectangle(image, (x, y), (x+w, y+h), (127, 127, 127), 2)
     return image
 def extract_cell_images_from_table(image):
-    thresholded = adapt_thresh(~image)
-
-    # We are going to be doing some big dilation and erosion
-    # and if we hit an image border during that process then things
-    # will break in odd ways. Add a huge border now and we can
-    # remove it at the end.
-    bordered = cv2.copyMakeBorder(
-        thresholded, 50, 50, 50, 50, cv2.BORDER_CONSTANT, None, 255
-    )
+    blurred = gaus_blur(~image)
+    thresholded = adapt_thresh(blurred)
 
     # Find just the long lines in the image. This is the table.
-    masked_to_long_lines = mask_to_long_lines(bordered)
+    masked_to_long_lines = mask_to_long_lines(thresholded)
 
     # Dilate to try connecting border joins so each cell
     # is a separate contour.
@@ -56,15 +51,8 @@ def extract_cell_images_from_table(image):
     # Let's dilate until until we can't dilate any further. Dilate until further dilation
     # would increase the number of contours.
     minified_borders = minify_cell_borders(magnified_borders)
-    y, x = minified_borders.shape
 
-    # Now that we are done with all the dilate/erode, remove
-    # the image border that we added earlier so that our cell
-    # contour x/y values will align with the cells of the original
-    # image.
-    contoured_table = minified_borders[50 : y - 50, 50 : x - 50]
-
-    cells = find_cells(contoured_table)
+    cells = find_cells(minified_borders)
     rows = sort_cells(cells)
 
     cell_images_rows = []
@@ -79,6 +67,11 @@ def extract_cell_images_from_table(image):
         cell_images_rows.append(cell_images_row)
     return cell_images_rows
 
+def gaus_blur(image, kern_size=(17, 17), x_std=0, y_std=0):
+    """Call through to cv2.GaussianBlur with reasonable defaults."""
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    return cv2.GaussianBlur(image, kern_size, x_std, y_std)
 def adapt_thresh(
     image,
     max_col=255,

@@ -429,9 +429,12 @@ cell detection.
 
 Cleanup can be accomplished with a blur followed by some thresholding.
 
-#+BEGIN_SRC python :noweb-ref blur :results none
-def gaus_blur(img, kern_size=(17, 17), x_std=0, y_std=0):
+#+NAME: blur
+#+BEGIN_SRC python :results none
+def gaus_blur(image, kern_size=(17, 17), x_std=0, y_std=0):
     """Call through to cv2.GaussianBlur with reasonable defaults."""
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     return cv2.GaussianBlur(image, kern_size, x_std, y_std)
 #+END_SRC
 
@@ -695,6 +698,7 @@ numbering them from right to left, top to bottom.
 
 #+HEADER: :post html-image-size(text=*this*, width="500px")
 #+BEGIN_SRC python :noweb no-export :results none :exports both
+<<blur>>
 <<<adapt-thresh>>
 <<mask-to-long-lines>>
 <<connect-border-joints>>
@@ -704,7 +708,8 @@ numbering them from right to left, top to bottom.
 <<sort-cells>>
 
 image = ~cv2.imread("resources/examples/example-table.png", cv2.IMREAD_GRAYSCALE)
-thresh = adapt_thresh(image)
+blurred = gaus_blur(image)
+thresh = adapt_thresh(blurred)
 lines = mask_to_long_lines(thresh)
 connected = connect_border_joints(lines)
 magnified = magnify_cell_borders(connected)
@@ -815,21 +820,16 @@ def minify_cell_borders(image):
 
 #+NAME: extract-cells-from-table
 #+BEGIN_SRC python :noweb yes :eval no
+import cv2
+
 <<label-cells>>
 <<draw-bounding-rects>>
 def extract_cell_images_from_table(image):
-    thresholded = adapt_thresh(~image)
-
-    # We are going to be doing some big dilation and erosion
-    # and if we hit an image border during that process then things
-    # will break in odd ways. Add a huge border now and we can
-    # remove it at the end.
-    bordered = cv2.copyMakeBorder(
-        thresholded, 50, 50, 50, 50, cv2.BORDER_CONSTANT, None, 255
-    )
+    blurred = gaus_blur(~image)
+    thresholded = adapt_thresh(blurred)
 
     # Find just the long lines in the image. This is the table.
-    masked_to_long_lines = mask_to_long_lines(bordered)
+    masked_to_long_lines = mask_to_long_lines(thresholded)
 
     # Dilate to try connecting border joins so each cell
     # is a separate contour.
@@ -841,30 +841,14 @@ def extract_cell_images_from_table(image):
     # isn't pitch black to white.
     magnified_borders = magnify_cell_borders(connected)
 
-    cv2.imshow("mb", magnified_borders)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
     # But blurring and thresholding on such a dark value makes our contours much smaller
     # than the actual cells of the table. We've rid our table of gaps in the borders; all
     # of or cells are completely enclosed now, but they are enclosed too much.
     # Let's dilate until until we can't dilate any further. Dilate until further dilation
     # would increase the number of contours.
     minified_borders = minify_cell_borders(magnified_borders)
-    y, x = minified_borders.shape
 
-    # Now that we are done with all the dilate/erode, remove
-    # the image border that we added earlier so that our cell
-    # contour x/y values will align with the cells of the original
-    # image.
-    contoured_table = minified_borders[50 : y - 50, 50 : x - 50]
-
-    cells = find_cells(contoured_table)
-    im = draw_bounding_rects(contoured_table, cells)
-    cv2.imshow('im', im)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
+    cells = find_cells(minified_borders)
     rows = sort_cells(cells)
 
     cell_images_rows = []
@@ -879,6 +863,7 @@ def extract_cell_images_from_table(image):
         cell_images_rows.append(cell_images_row)
     return cell_images_rows
 
+<<blur>>
 <<adapt-thresh>>
 <<mask-to-long-lines>>
 <<connect-border-joints>>
@@ -890,6 +875,7 @@ def extract_cell_images_from_table(image):
 
 #+HEADER: :post html-image-size(text=*this*, width="200px")
 #+BEGIN_SRC python :noweb no-export :results none :exports both
+
 <<extract-cells-from-table>>
 image = cv2.imread("resources/examples/example-table.png", cv2.IMREAD_GRAYSCALE)
 cell_images_rows = extract_cell_images_from_table(image)
@@ -898,7 +884,6 @@ cv2.imwrite("resources/examples/example-table-cell-2-1.png", cell_images_rows[2]
 
 #+ATTR_HTML: :width 200px :height 100%
 [[file:resources/examples/example-table-cell-2-1.png]]
-
 
 ** Cropping each cell to the text
 
