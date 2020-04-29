@@ -69,8 +69,6 @@ def extract_cell_images_from_table(image):
 
 def gaus_blur(image, kern_size=(17, 17), x_std=0, y_std=0):
     """Call through to cv2.GaussianBlur with reasonable defaults."""
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
     return cv2.GaussianBlur(image, kern_size, x_std, y_std)
 def adapt_thresh(
     image,
