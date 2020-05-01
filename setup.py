@@ -11,6 +11,7 @@ setuptools.setup(
     author="Eric Ihli",
     author_email="eihli@owoga.com",
     description="Extract text from tables in images.",
+    license="MIT",
     long_description=long_description,
     long_description_content_type="text/plain",
     url="https://github.com/eihli/image-table-ocr",
