@@ -7,7 +7,7 @@ Requires binaries for tesseract, ImageMagick, and pdfimages (from Poppler).
 """
 setuptools.setup(
     name="table_ocr",
-    version="0.1",
+    version="0.1.1",
     author="Eric Ihli",
     author_email="eihli@owoga.com",
     description="Extract text from tables in images.",
