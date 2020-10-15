@@ -97,13 +97,14 @@ PDF=$1
 python -m table_ocr.pdf_to_images $PDF | grep .png > /tmp/pdf-images.txt
 cat /tmp/pdf-images.txt | xargs -I{} python -m table_ocr.extract_tables {}  | grep table > /tmp/extracted-tables.txt
 cat /tmp/extracted-tables.txt | xargs -I{} python -m table_ocr.extract_cells {} | grep cells > /tmp/extracted-cells.txt
-cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {} --psm 7 -l table-ocr
-
+cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {}
 for image in $(cat /tmp/extracted-tables.txt); do
     dir=$(dirname $image)
     python -m table_ocr.ocr_to_csv $(find $dir/cells -name "*.txt")
 done
 #+END_SRC
+
+Any extra args you pass after the image path to ~python -m table_ocr.ocr_image~ will be passed directly to tesseract as options. If you don't pass anything, reasonable english defaults are used.
 
 ** Possible improvements
 
@@ -199,7 +200,7 @@ def preprocess_img(filepath, tess_params=None):
     like mogrify to rotate.
 
     Uses tesseract to detect rotation.
-   
+
     Orientation and script detection is only available for legacy tesseract
     (--oem 0). Some versions of tesseract will segfault if you let it run OSD
     with the default oem (3).

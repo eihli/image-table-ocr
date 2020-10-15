@@ -49,13 +49,14 @@ PDF=$1
 python -m table_ocr.pdf_to_images $PDF | grep .png > /tmp/pdf-images.txt
 cat /tmp/pdf-images.txt | xargs -I{} python -m table_ocr.extract_tables {}  | grep table > /tmp/extracted-tables.txt
 cat /tmp/extracted-tables.txt | xargs -I{} python -m table_ocr.extract_cells {} | grep cells > /tmp/extracted-cells.txt
-cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {} --psm 7 -l table-ocr
+cat /tmp/extracted-cells.txt | xargs -I{} python -m table_ocr.ocr_image {}
 
 for image in $(cat /tmp/extracted-tables.txt); do
     dir=$(dirname $image)
     python -m table_ocr.ocr_to_csv $(find $dir/cells -name "*.txt")
 done
 #+END_SRC
+
 
 The package was written in a [[https://en.wikipedia.org/wiki/Literate_programming][literate programming]] style. The source code at
 [[https://eihli.github.io/image-table-ocr/pdf_table_extraction_and_ocr.html]] is
