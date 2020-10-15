@@ -317,6 +317,8 @@ We'll start with an image shown at the end of the previous section.
 
 ** Training Tesseract
 
+Tesseract is used for recognizing characters. It is not involved in extracting the tables from an image or in extracting cells from the table.
+
 It's a very good idea to train tesseract. Accuracy will improve tremendously.
 
 Clone the tesstrain repo at [[https://github.com/tesseract-ocr/tesstrain]].
@@ -370,7 +372,7 @@ the caption from within ~feh~.
 ~feh~ expects the captions to be named ~<image-name>.txt~, so use a little
 shell-fu to do a quick rename.
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell :eval no
 for f in *.txt; do f1=$(cut -d"." -f1 <(echo $f)); mv $f ${f1}.png.txt; done
 #+END_SRC
 
@@ -383,7 +385,7 @@ next/previons images. Press ~q~ to quit.
 When finished, rename the files back to the filename structure that Tesseract
 looks for in training.
 
-#+BEGIN_SRC shell
+#+BEGIN_SRC shell :eval no
 for f in *.txt; do f1=$(cut -d"." -f1 <(echo $f)); mv $f ${f1}.gt.txt; done
 #+END_SRC
 
@@ -746,10 +748,21 @@ def ocr_image(image, config):
     )
 #+END_SRC
 
+The second argument passed to ~ocr_image~ is a string of the command line arguments passed directly to ~tesseract~. You can view the available options at [[https://github.com/tesseract-ocr/tesseract/blob/master/doc/tesseract.1.asc#options]]
+
+If no options are passed to ~tesseract~, then language defaults to english. This means ~tesseract~ needs to be able to find a file named ~eng.traineddata~ on whatever path it searches for languages.
+
+This python package comes with ~eng.traineddata~ and ~table-ocr.traineddata~. ~table-ocr.traineddata~ is a personal model that I've found to be more accurate for my use case. You should train your own to maximize accuracy.
+
+When you ~pip install~ this package, the traineddata gets copied to a ~tessdata~ folder in the same directory in which ~pip~ installs the package.
+
+The ~ocr_image~ package in this repo defaults to using the ~--tessdata-dir~ option to the package's ~tessdata~ directory in the package install location and the ~-l~ option to the ~table_ocr~ language.
+
 #+BEGIN_SRC python :noweb no-export :exports both
 import pytesseract
 import cv2
 import numpy as np
+import math
 image = cv2.imread("resources/examples/example-table-cell-1-1.png", cv2.IMREAD_GRAYSCALE)
 <<crop-to-text>>
 <<ocr-image>>
@@ -776,28 +789,28 @@ import setuptools
 long_description = """
 Utilities for turning images of tables into CSV data. Uses Tesseract and OpenCV.
 
-Requires binaries for tesseract and pdfimages (from Poppler).
+Requires binaries for tesseract, ImageMagick, and pdfimages (from Poppler).
 """
 setuptools.setup(
     name="table_ocr",
-    version="0.0.1",
+    version="0.2.0",
     author="Eric Ihli",
     author_email="eihli@owoga.com",
-    description="Turn images of tables into CSV data.",
+    description="Extract text from tables in images.",
     long_description=long_description,
     long_description_content_type="text/plain",
     url="https://github.com/eihli/image-table-ocr",
     packages=setuptools.find_packages(),
+    package_data={
+        "table_ocr": ["tessdata/table-ocr.traineddata", "tessdata/eng.traineddata"]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=[
-        "pytesseract~=0.3",
-        "opencv-python~=4.2",
-    ],
-    python_requires='>=3.6',
+    install_requires=["pytesseract~=0.3", "opencv-python~=4.2",],
+    python_requires=">=3.6",
 )
 #+END_SRC
 
@@ -1019,6 +1032,7 @@ print("\n".join(paths))
 #+BEGIN_SRC python :tangle table_ocr/ocr_image/__init__.py
 import math
 import os
+import sys
 
 import cv2
 import numpy as np
@@ -1042,6 +1056,10 @@ def main(image_file, tess_args):
     out_imagepath = os.path.join(ocr_data_dir, filename)
     out_txtpath = os.path.join(ocr_data_dir, "{}.gt.txt".format(filename_sans_ext))
     cv2.imwrite(out_imagepath, cropped)
+    if not tess_args:
+        d = os.path.dirname(sys.modules["table_ocr"].__file__)
+        tessdata_dir = os.path.join(d, "tessdata")
+        tess_args = ["--psm", "7", "-l", "table-ocr", "--tessdata-dir", tessdata_dir]
     txt = ocr_image(cropped, " ".join(tess_args))
     with open(out_txtpath, "w") as txt_file:
         txt_file.write(txt)

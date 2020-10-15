@@ -1,5 +1,6 @@
 import math
 import os
+import sys
 
 import cv2
 import numpy as np
@@ -23,6 +24,10 @@ def main(image_file, tess_args):
     out_imagepath = os.path.join(ocr_data_dir, filename)
     out_txtpath = os.path.join(ocr_data_dir, "{}.gt.txt".format(filename_sans_ext))
     cv2.imwrite(out_imagepath, cropped)
+    if not tess_args:
+        d = os.path.dirname(sys.modules["table_ocr"].__file__)
+        tessdata_dir = os.path.join(d, "tessdata")
+        tess_args = ["--psm", "7", "-l", "table-ocr", "--tessdata-dir", tessdata_dir]
     txt = ocr_image(cropped, " ".join(tess_args))
     with open(out_txtpath, "w") as txt_file:
         txt_file.write(txt)
