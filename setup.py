@@ -1,10 +1,10 @@
+import os
 import setuptools
 
-long_description = """
-Utilities for turning images of tables into CSV data. Uses Tesseract and OpenCV.
+this_dir = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(this_dir, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
 
-Requires binaries for tesseract, ImageMagick, and pdfimages (from Poppler).
-"""
 setuptools.setup(
     name="table_ocr",
     version="0.2.1",
