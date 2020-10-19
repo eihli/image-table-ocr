@@ -46,8 +46,13 @@ I haven't looked into the minimum required versions of these dependencies, but I
 
 There is a demo module that will download an image given a URL and try to extract tables from the image and process the cells into a CSV. You can try it out with one of the images included in this repo.
 
-~pip3 install table_ocr~
-~python3 -m table_ocr.demo https://raw.githubusercontent.com/eihli/image-table-ocr/master/resources/test_data/simple.png~
+1. ~pip3 install table_ocr~
+2. ~python3 -m table_ocr.demo https://raw.githubusercontent.com/eihli/image-table-ocr/master/resources/test_data/simple.png~
+
+That will run against the following image:
+
+#+ATTR_HTML: :width 40%
+[[file:resources/test_data/simple.png]]
 
 The following should be printed to your terminal after running the above commands.
 

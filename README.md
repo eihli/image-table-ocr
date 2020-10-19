@@ -1,15 +1,15 @@
 
 # Table of Contents
 
-1.  [Overview](#org7458939)
-2.  [Requirements](#org68f202b)
-    1.  [External](#org711e7dc)
-3.  [Demo](#orge0b4c25)
-4.  [Modules](#org89ead1e)
+1.  [Overview](#org7311ab5)
+2.  [Requirements](#orgf178bb3)
+    1.  [External](#orgc4a7676)
+3.  [Demo](#org9e8b3de)
+4.  [Modules](#orgba15961)
 
 
 
-<a id="org7458939"></a>
+<a id="org7311ab5"></a>
 
 # Overview
 
@@ -39,7 +39,7 @@ Extract the the text into a CSV format&#x2026;
     ,,"* Based upon 2,567,700"
 
 
-<a id="org68f202b"></a>
+<a id="orgf178bb3"></a>
 
 # Requirements
 
@@ -48,7 +48,7 @@ Along with the python requirements that are listed in setup.py and that are auto
 I haven&rsquo;t looked into the minimum required versions of these dependencies, but I&rsquo;ll list the versions that I&rsquo;m using.
 
 
-<a id="org711e7dc"></a>
+<a id="orgc4a7676"></a>
 
 ## External
 
@@ -57,14 +57,18 @@ I haven&rsquo;t looked into the minimum required versions of these dependencies,
 -   `mogrify` 7.0.10 of [ImageMagick](https://imagemagick.org/index.php)
 
 
-<a id="orge0b4c25"></a>
+<a id="org9e8b3de"></a>
 
 # Demo
 
 There is a demo module that will download an image given a URL and try to extract tables from the image and process the cells into a CSV. You can try it out with one of the images included in this repo.
 
-`pip3 install table_ocr`
-`python3 -m table_ocr.demo https://raw.githubusercontent.com/eihli/image-table-ocr/master/resources/test_data/simple.png`
+1.  `pip3 install table_ocr`
+2.  `python3 -m table_ocr.demo https://raw.githubusercontent.com/eihli/image-table-ocr/master/resources/test_data/simple.png`
+
+That will run against the following image:
+
+![img](resources/test_data/simple.png)
 
 The following should be printed to your terminal after running the above commands.
 
@@ -90,7 +94,7 @@ The following should be printed to your terminal after running the above command
     F4,Currency,=E4*C4
 
 
-<a id="org89ead1e"></a>
+<a id="orgba15961"></a>
 
 # Modules
 
