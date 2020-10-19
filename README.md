@@ -1,7 +1,16 @@
 
 # Table of Contents
 
+1.  [Overview](#org9a73e36)
+2.  [Requirements](#org1b4cf16)
+    1.  [External](#orgf001e21)
+3.  [Modules](#org96344fe)
 
+
+
+<a id="org9a73e36"></a>
+
+# Overview
 
 This python package contains modules to help with finding and extracting tabular
 data from a PDF or image into a CSV format.
@@ -27,6 +36,29 @@ Extract the the text into a CSV format&#x2026;
     Toa,,
     ,,
     ,,"* Based upon 2,567,700"
+
+
+<a id="org1b4cf16"></a>
+
+# Requirements
+
+Along with the python requirements that are listed in setup.py and that are automatically installed when installing this package through pip, there are a few external requirements for some of the modules.
+
+I haven&rsquo;t looked into the minimum required versions of these dependencies, but I&rsquo;ll list the versions that I&rsquo;m using.
+
+
+<a id="orgf001e21"></a>
+
+## External
+
+-   `pdfimages` 20.09.0 of [Poppler](https://poppler.freedesktop.org/)
+-   `tesseract` 5.0.0 of [Tesseract](https://github.com/tesseract-ocr/tesseract)
+-   `mogrify` 7.0.10 of [ImageMagick](https://imagemagick.org/index.php)
+
+
+<a id="org96344fe"></a>
+
+# Modules
 
 The package is split into modules with narrow focuses.
 

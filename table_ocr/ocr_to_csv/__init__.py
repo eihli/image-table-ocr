@@ -25,3 +25,6 @@ def text_files_to_csv(files):
     writer = csv.writer(csv_file)
     writer.writerows(rows)
     return csv_file.getvalue()
+
+def main(files):
+    return text_files_to_csv(files)

@@ -60,15 +60,17 @@ The package is split into modules with narrow focuses.
 
 ** Requirements
 
+Tested with the following versions of the following packages
+
 *** Python packages
-- numpy
-- opencv-python
-- pytesseract
+- numpy 1.19.2
+- opencv-python 4.4.0.44
+- pytesseract 0.3.6
 
 *** External
-- ~pdfimages~ from Poppler
-- Tesseract
-- ~mogfrify~ ImageMagick
+- ~pdfimages~ from Poppler 20.09.0
+- ~tesseract~ 5.0.0
+- ~mogfrify~ ImageMagick 7.0.10
 
 ** Contributing
 
@@ -774,6 +776,91 @@ ocr_image(image, "--psm 7")
 #+RESULTS:
 : 9.09
 
+* Demo
+
+I wanted to include a demo script that can be used as a quick example.
+
+To run the demo, simply:
+
+1. ~pip3 install table_ocr~
+2. ~python3 -m table_ocr.util.url_img_to_csv "https://2ptidz4dnkwy36mu2on9rps1-wpengine.netdna-ssl.com/wp-content/uploads/2015/11/Scanning-Mirror-Data-1.png"~
+
+
+All of the modules work with filepaths, so whatever you're working with needs to be saved to the fileystem so we can access it by its filename. There is no particular reason for this other than it was the most convenient implementation at the time. This just as well could be modified to accept file-like objects for a lot of the code and we could do all of the work in-memory without storing things to disk.
+
+#+NAME: helper download image to tempdir
+#+BEGIN_SRC python
+def download_image_to_tempdir(url, filename=None):
+    if filename is None:
+        filename = os.path.basename(url)
+    response = requests.get(url, stream=True)
+    tempdir = table_ocr.util.make_tempdir("demo")
+    filepath = os.path.join(tempdir, filename)
+    with open(filepath, 'wb') as f:
+        for chunk in response.iter_content():
+            f.write(chunk)
+    return filepath
+#+END_SRC
+
+This demo starts from an image rather than from a PDF. The concepts should still be apparent. But starting from a PDF would make the demo less demo-able since it would require the person running the demo to have Poppler installed for ~pdftoimages~.
+
+The ~main~ function of ~extract_tables~ takes a list of filepaths of images. It will attempt to find bounding boxes of all tables in the images and return a list of tuples of (<image filepath>, <list of filepaths of found and cropped out tables>)
+
+#+NAME: demo main
+#+BEGIN_SRC python :tangle table_ocr/demo/__main__.py :mkdirp yes :noweb yes
+<<demo imports>>
+<<helper download image to tempdir>>
+
+def main(url):
+    image_filepath = download_image_to_tempdir(url)
+    image_tables = table_ocr.extract_tables.main([image_filepath])
+    print("Running `{}`".format(f"extract_tables.main([{image_filepath}])."))
+    print("Extracted the following tables from the image:")
+    print(image_tables)
+    for image, tables in image_tables:
+        print(f"Processing tables for {image}.")
+        for table in tables:
+            print(f"Processing table {table}.")
+            cells = table_ocr.extract_cells.main(table)
+            ocr = [
+                table_ocr.ocr_image.main(cell, None)
+                for cell in cells
+            ]
+            print("Extracted {} cells from {}".format(len(ocr), table))
+            print("Cells:")
+            for c, o in zip(cells[:3], ocr[:3]):
+                with open(o) as ocr_file:
+                    # Tesseract puts line feeds at end of text.
+                    # Stript it out.
+                    text = ocr_file.read().strip()
+                    print("{}: {}".format(c, text))
+            # If we have more than 3 cells (likely), print an ellipses
+            # to show that we are truncating output for the demo.
+            if len(cells) > 3:
+                print("...")
+            return table_ocr.ocr_to_csv.text_files_to_csv(ocr)
+
+if __name__ == "__main__":
+    csv_output = main(sys.argv[1])
+    print()
+    print("Here is the entire CSV output:")
+    print()
+    print(csv_output)
+#+END_SRC
+
+#+NAME: demo imports
+#+BEGIN_SRC python
+import os
+import sys
+
+import requests
+import table_ocr.util
+import table_ocr.extract_tables
+import table_ocr.extract_cells
+import table_ocr.ocr_image
+import table_ocr.ocr_to_csv
+#+END_SRC
+
 * Files
 :PROPERTIES:
 :header-args: :mkdirp yes :noweb yes
@@ -794,7 +881,7 @@ with open(os.path.join(this_dir, "README.md"), encoding="utf-8") as f:
 
 setuptools.setup(
     name="table_ocr",
-    version="0.2.1",
+    version="0.2.2",
     author="Eric Ihli",
     author_email="eihli@owoga.com",
     description="Extract text from tables in images.",
@@ -810,7 +897,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=["pytesseract~=0.3", "opencv-python~=4.2",],
+    install_requires=["pytesseract~=0.3", "opencv-python~=4.2", "numpy~=1.19"],
     python_requires=">=3.6",
 )
 #+END_SRC
@@ -1123,6 +1210,9 @@ def text_files_to_csv(files):
     writer = csv.writer(csv_file)
     writer.writerows(rows)
     return csv_file.getvalue()
+
+def main(files):
+    return text_files_to_csv(files)
 #+END_SRC
 **** table_ocr/ocr_to_csv/__main__.py
 

@@ -1,4 +1,6 @@
-#+TITLE: Readme
+#+TITLE: Table detection in images and OCR to CSV
+
+* Overview
 
 This python package contains modules to help with finding and extracting tabular
 data from a PDF or image into a CSV format.
@@ -27,6 +29,20 @@ Toa,,
 ,,
 ,,"* Based upon 2,567,700"
 #+END_EXAMPLE
+
+* Requirements
+
+Along with the python requirements that are listed in setup.py and that are automatically installed when installing this package through pip, there are a few external requirements for some of the modules.
+
+I haven't looked into the minimum required versions of these dependencies, but I'll list the versions that I'm using.
+
+** External
+
+- ~pdfimages~ 20.09.0 of [[https://poppler.freedesktop.org/][Poppler]]
+- ~tesseract~ 5.0.0 of [[https://github.com/tesseract-ocr/tesseract][Tesseract]]
+- ~mogrify~ 7.0.10 of [[https://imagemagick.org/index.php][ImageMagick]]
+
+* Modules
 
 The package is split into modules with narrow focuses.
 
