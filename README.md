@@ -1,14 +1,15 @@
 
 # Table of Contents
 
-1.  [Overview](#org9a73e36)
-2.  [Requirements](#org1b4cf16)
-    1.  [External](#orgf001e21)
-3.  [Modules](#org96344fe)
+1.  [Overview](#org7458939)
+2.  [Requirements](#org68f202b)
+    1.  [External](#org711e7dc)
+3.  [Demo](#orge0b4c25)
+4.  [Modules](#org89ead1e)
 
 
 
-<a id="org9a73e36"></a>
+<a id="org7458939"></a>
 
 # Overview
 
@@ -38,7 +39,7 @@ Extract the the text into a CSV format&#x2026;
     ,,"* Based upon 2,567,700"
 
 
-<a id="org1b4cf16"></a>
+<a id="org68f202b"></a>
 
 # Requirements
 
@@ -47,7 +48,7 @@ Along with the python requirements that are listed in setup.py and that are auto
 I haven&rsquo;t looked into the minimum required versions of these dependencies, but I&rsquo;ll list the versions that I&rsquo;m using.
 
 
-<a id="orgf001e21"></a>
+<a id="org711e7dc"></a>
 
 ## External
 
@@ -56,7 +57,40 @@ I haven&rsquo;t looked into the minimum required versions of these dependencies,
 -   `mogrify` 7.0.10 of [ImageMagick](https://imagemagick.org/index.php)
 
 
-<a id="org96344fe"></a>
+<a id="orge0b4c25"></a>
+
+# Demo
+
+There is a demo module that will download an image given a URL and try to extract tables from the image and process the cells into a CSV. You can try it out with one of the images included in this repo.
+
+`pip3 install table_ocr`
+`python3 -m table_ocr.demo https://raw.githubusercontent.com/eihli/image-table-ocr/master/resources/test_data/simple.png`
+
+The following should be printed to your terminal after running the above commands.
+
+    Running `extract_tables.main([/tmp/demo_p9on6m8o/simple.png]).`
+    Extracted the following tables from the image:
+    [('/tmp/demo_p9on6m8o/simple.png', ['/tmp/demo_p9on6m8o/simple/table-000.png'])]
+    Processing tables for /tmp/demo_p9on6m8o/simple.png.
+    Processing table /tmp/demo_p9on6m8o/simple/table-000.png.
+    Extracted 18 cells from /tmp/demo_p9on6m8o/simple/table-000.png
+    Cells:
+    /tmp/demo_p9on6m8o/simple/cells/000-000.png: Cell
+    /tmp/demo_p9on6m8o/simple/cells/000-001.png: Format
+    /tmp/demo_p9on6m8o/simple/cells/000-002.png: Formula
+    ...
+    
+    Here is the entire CSV output:
+    
+    Cell,Format,Formula
+    B4,Percentage,None
+    C4,General,None
+    D4,Accounting,None
+    E4,Currency,"=PMT(B4/12,C4,D4)"
+    F4,Currency,=E4*C4
+
+
+<a id="org89ead1e"></a>
 
 # Modules
 

@@ -42,6 +42,38 @@ I haven't looked into the minimum required versions of these dependencies, but I
 - ~tesseract~ 5.0.0 of [[https://github.com/tesseract-ocr/tesseract][Tesseract]]
 - ~mogrify~ 7.0.10 of [[https://imagemagick.org/index.php][ImageMagick]]
 
+* Demo
+
+There is a demo module that will download an image given a URL and try to extract tables from the image and process the cells into a CSV. You can try it out with one of the images included in this repo.
+
+~pip3 install table_ocr~
+~python3 -m table_ocr.demo https://raw.githubusercontent.com/eihli/image-table-ocr/master/resources/test_data/simple.png~
+
+The following should be printed to your terminal after running the above commands.
+
+#+BEGIN_EXAMPLE
+Running `extract_tables.main([/tmp/demo_p9on6m8o/simple.png]).`
+Extracted the following tables from the image:
+[('/tmp/demo_p9on6m8o/simple.png', ['/tmp/demo_p9on6m8o/simple/table-000.png'])]
+Processing tables for /tmp/demo_p9on6m8o/simple.png.
+Processing table /tmp/demo_p9on6m8o/simple/table-000.png.
+Extracted 18 cells from /tmp/demo_p9on6m8o/simple/table-000.png
+Cells:
+/tmp/demo_p9on6m8o/simple/cells/000-000.png: Cell
+/tmp/demo_p9on6m8o/simple/cells/000-001.png: Format
+/tmp/demo_p9on6m8o/simple/cells/000-002.png: Formula
+...
+
+Here is the entire CSV output:
+
+Cell,Format,Formula
+B4,Percentage,None
+C4,General,None
+D4,Accounting,None
+E4,Currency,"=PMT(B4/12,C4,D4)"
+F4,Currency,=E4*C4
+#+END_EXAMPLE
+
 * Modules
 
 The package is split into modules with narrow focuses.
