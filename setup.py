@@ -7,7 +7,7 @@ with open(os.path.join(this_dir, "README.txt"), encoding="utf-8") as f:
 
 setuptools.setup(
     name="table_ocr",
-    version="0.2.3",
+    version="0.2.4",
     author="Eric Ihli",
     author_email="eihli@owoga.com",
     description="Extract text from tables in images.",
@@ -23,6 +23,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=["pytesseract~=0.3", "opencv-python~=4.2", "numpy~=1.19"],
+    install_requires=["pytesseract~=0.3", "opencv-python~=4.2", "numpy~=1.19", "requests>=2"],
     python_requires=">=3.6",
 )
