@@ -36,8 +36,6 @@ Along with the python requirements that are listed in setup.py and that are auto
 
 I haven't looked into the minimum required versions of these dependencies, but I'll list the versions that I'm using.
 
-** External
-
 - ~pdfimages~ 20.09.0 of [[https://poppler.freedesktop.org/][Poppler]]
 - ~tesseract~ 5.0.0 of [[https://github.com/tesseract-ocr/tesseract][Tesseract]]
 - ~mogrify~ 7.0.10 of [[https://imagemagick.org/index.php][ImageMagick]]

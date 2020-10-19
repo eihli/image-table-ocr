@@ -1,15 +1,14 @@
 
 # Table of Contents
 
-1.  [Overview](#org7311ab5)
-2.  [Requirements](#orgf178bb3)
-    1.  [External](#orgc4a7676)
-3.  [Demo](#org9e8b3de)
-4.  [Modules](#orgba15961)
+1.  [Overview](#org9905778)
+2.  [Requirements](#org08346b2)
+3.  [Demo](#orgb3d60f1)
+4.  [Modules](#org67b1fc2)
 
 
 
-<a id="org7311ab5"></a>
+<a id="org9905778"></a>
 
 # Overview
 
@@ -39,7 +38,7 @@ Extract the the text into a CSV format&#x2026;
     ,,"* Based upon 2,567,700"
 
 
-<a id="orgf178bb3"></a>
+<a id="org08346b2"></a>
 
 # Requirements
 
@@ -47,17 +46,12 @@ Along with the python requirements that are listed in setup.py and that are auto
 
 I haven&rsquo;t looked into the minimum required versions of these dependencies, but I&rsquo;ll list the versions that I&rsquo;m using.
 
-
-<a id="orgc4a7676"></a>
-
-## External
-
 -   `pdfimages` 20.09.0 of [Poppler](https://poppler.freedesktop.org/)
 -   `tesseract` 5.0.0 of [Tesseract](https://github.com/tesseract-ocr/tesseract)
 -   `mogrify` 7.0.10 of [ImageMagick](https://imagemagick.org/index.php)
 
 
-<a id="org9e8b3de"></a>
+<a id="orgb3d60f1"></a>
 
 # Demo
 
@@ -94,7 +88,7 @@ The following should be printed to your terminal after running the above command
     F4,Currency,=E4*C4
 
 
-<a id="orgba15961"></a>
+<a id="org67b1fc2"></a>
 
 # Modules
 
