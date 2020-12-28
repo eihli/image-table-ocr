@@ -7,7 +7,7 @@ with open(os.path.join(this_dir, "README.txt"), encoding="utf-8") as f:
 
 setuptools.setup(
     name="table_ocr",
-    version="0.2.4",
+    version="0.2.5",
     author="Eric Ihli",
     author_email="eihli@owoga.com",
     description="Extract text from tables in images.",

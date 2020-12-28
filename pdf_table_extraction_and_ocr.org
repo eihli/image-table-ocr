@@ -806,6 +806,10 @@ This demo starts from an image rather than from a PDF. The concepts should still
 
 The ~main~ function of ~extract_tables~ takes a list of filepaths of images. It will attempt to find bounding boxes of all tables in the images and return a list of tuples of (<image filepath>, <list of filepaths of found and cropped out tables>)
 
+#+BEGIN_SRC python :tangle table_ocr/demo/__init__.py :mkdirp yes
+
+#+END_SRC
+
 #+NAME: demo main
 #+BEGIN_SRC python :tangle table_ocr/demo/__main__.py :mkdirp yes :noweb yes
 <<demo imports>>
@@ -881,7 +885,7 @@ with open(os.path.join(this_dir, "README.txt"), encoding="utf-8") as f:
 
 setuptools.setup(
     name="table_ocr",
-    version="0.2.4",
+    version="0.2.5",
     author="Eric Ihli",
     author_email="eihli@owoga.com",
     description="Extract text from tables in images.",
